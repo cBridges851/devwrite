@@ -32,4 +32,8 @@
         + <<void>> onBindViewHolder(PostHolder holder, int position)
         + <<int>> getItemCount()
     }
+
+    PostListActivity --> PostListFragment
+    PostListFragment *-- PostHolder : "contains"
+    PostListFragment *-- PostAdapter : "contains"
 @enduml
