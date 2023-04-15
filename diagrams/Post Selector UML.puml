@@ -1,0 +1,35 @@
+@startuml
+' Post Selector Component
+
+    class PostListActivity {
+        #<<void>> onCreate(Bundle savedInstanceState)
+    }
+
+    class PostListFragment {
+        - mCreatePostButton: Button
+        - mPostRecyclerView: RecyclerView
+        - mAdapter: PostAdapter
+        + <<void>> onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+        + <<void>> onCreate(Bundle savedInstanceState)
+        + <<void>> onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        + <<void>> onResume()
+        - <<void>> updateUI()
+    }
+
+    class PostHolder {
+        + mTitleTextView: TextView
+        + mPreviewTextView: TextView
+        + Post mPost
+        + PostHolder(View itemView)
+        + <<void>> bindPost(Post post)
+    }
+
+    class PostAdapter {
+        - mPosts: List<Post>
+        + PostAdapter(List<Post> posts)
+        + <<void>> setCrimes(List<Post> posts)
+        + <<PostHolder>> onCreateViewHolder(ViewGroup parent, int viewType)
+        + <<void>> onBindViewHolder(PostHolder holder, int position)
+        + <<int>> getItemCount()
+    }
+@enduml
