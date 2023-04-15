@@ -25,5 +25,11 @@
         - <<void>> updatePhotoView()
     }
 
+    class PictureUtils {
+        + <<Bitmap>> getScaledBitmap(String path, Activity activity)
+        - <<Bitmap>> getScaledBitmap(String path, int destWidth, int destHeight)
+    }
+    
     PostPagerActivity --> PostFragment
+    PostFragment --> PictureUtils
 @enduml
