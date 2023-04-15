@@ -1,0 +1,29 @@
+@startuml
+' Editor Component
+
+    class PostPagerActivity {
+        - EXTRA_CRIME_ID: String
+        - mViewPager: ViewPager
+        - mPosts: List<Post>
+        + <<Intent>> newIntent(Context packageContext, UUID crimeId)
+        + <<void>> onCreate(Bundle savedInstanceState)
+    }
+
+    class PostFragment {
+        - ARG_POST_ID: String
+        - mPost: Post
+        - mTitleField: EditText
+        - mContentField: EditText
+        - mPhotoButton: ImageButton
+        - mPhotoView: ImageView
+        - mPhotoFile: File
+        + <<PostFragment>> newInstance(UUID crimeID)
+        + <<void>> onCreate(Bundle savedInstanceState)
+        + <<void>> onPause()
+        + <<View>> onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        + <<void>> onActivityResult(int requestCode, int resultCode, Intent data)
+        - <<void>> updatePhotoView()
+    }
+
+    PostPagerActivity --> PostFragment
+@enduml
