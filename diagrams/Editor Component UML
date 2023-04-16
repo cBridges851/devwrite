@@ -19,6 +19,7 @@
         - mPhotoFile: File
         + <<PostFragment>> newInstance(UUID crimeID)
         + <<void>> onCreate(Bundle savedInstanceState)
+        + <<void>> onCreateOptionsMenu(Menu menu, MenuInflater inflater)
         + <<void>> onPause()
         + <<View>> onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         + <<void>> onActivityResult(int requestCode, int resultCode, Intent data)
