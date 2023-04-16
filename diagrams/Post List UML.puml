@@ -1,8 +1,8 @@
 @startuml
-' Post Selector Component
+' Post List Component
 
     class PostListActivity {
-        #<<void>> onCreate(Bundle savedInstanceState)
+        # <<void>> onCreate(Bundle savedInstanceState)
     }
 
     class PostListFragment {
@@ -33,7 +33,12 @@
         + <<int>> getItemCount()
     }
 
+    class SearchHandler {
+        + getResults(String query, List<Crime> crimes)
+    }
+
     PostListActivity --> PostListFragment
+    PostListFragment --> SearchHandler
     PostListFragment *-- PostHolder : "contains"
     PostListFragment *-- PostAdapter : "contains"
 @enduml
