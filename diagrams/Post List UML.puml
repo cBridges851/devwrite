@@ -37,8 +37,13 @@
         + getResults(String query, List<Crime> crimes)
     }
 
+    namespace ShareComponent {
+        class Sharer
+    }
+
     PostListActivity --> PostListFragment
     PostListFragment --> SearchHandler
     PostListFragment *-- PostHolder : "contains"
     PostListFragment *-- PostAdapter : "contains"
+    PostListFragment --> Sharer
 @enduml
