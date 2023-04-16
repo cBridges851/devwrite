@@ -30,7 +30,12 @@
         + <<Bitmap>> getScaledBitmap(String path, Activity activity)
         - <<Bitmap>> getScaledBitmap(String path, int destWidth, int destHeight)
     }
+
+    namespace ShareComponent {
+        class Sharer
+    }
     
     PostPagerActivity --> PostFragment
     PostFragment --> PictureUtils
+    PostFragment --> Sharer
 @enduml
