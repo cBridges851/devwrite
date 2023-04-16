@@ -1,8 +1,20 @@
 @startuml
 ' Share Component
+
+    namespace EditorComponent {
+        class PostFragment
+    }
+
+    namespace PostListComponent {
+        class PostListFragment
+    }
+
     class Sharer {
         + <<void>> sharePostToLinkedIn(Fragment fragment, String content)
         + <<void>> sharePostsToLinkedIn(List<Fragment> fragments, List<String> allContent)
         + <<void>> sharePostToEmail(Fragment fragment, String content)
     }
+
+    PostFragment --> Sharer
+    PostListFragment --> Sharer
 @enduml
