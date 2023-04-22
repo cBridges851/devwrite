@@ -66,8 +66,8 @@ public class PostListFragment extends Fragment {
             mPost = post;
             String title = mPost.getTitle();
 
-            if (title.length() > 15) {
-                title = title.substring(0, 15);
+            if (title.length() > 30) {
+                title = title.substring(0, 30);
                 title = title + "...";
             }
 
