@@ -64,7 +64,14 @@ public class PostListFragment extends Fragment {
 
         public void bindPost(Post post) {
             mPost = post;
-            mTitleTextView.setText(mPost.getTitle());
+            String title = mPost.getTitle();
+
+            if (title.length() > 15) {
+                title = title.substring(0, 15);
+                title = title + "...";
+            }
+
+            mTitleTextView.setText(title);
             String content = mPost.getContent();
             if (content.length() > 100) {
                 content = content.substring(0, 100);
