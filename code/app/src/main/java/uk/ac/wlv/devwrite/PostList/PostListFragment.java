@@ -3,8 +3,12 @@ package uk.ac.wlv.devwrite.PostList;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,10 +28,26 @@ public class PostListFragment extends Fragment {
     private RecyclerView mPostRecyclerView;
     private PostAdapter mPostAdapter;
     private List<Post> posts;
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_post_list, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_search) {
+            Toast.makeText(getActivity(), "Search!", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         posts = DatabaseManager.get(getActivity()).getPosts();
+        setHasOptionsMenu(true);
     }
 
     @Nullable
