@@ -86,12 +86,12 @@ public class DatabaseManager {
         symbols.setTitle("!\"$%^&*()-_=+{[}]:;@'~#<,>.?/|\\");
         symbols.setContent("!\"$%^&*()-_=+{[}]:;@'~#<,>.?/|\\");
 
-//        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(shortTitleShortContent));
-//        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(longTitleShortContent));
-//        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(shortTitleLongContent));
-//        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(longTitleLongContent));
-//        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(emojis));
-//        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(symbols));
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(shortTitleShortContent));
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(longTitleShortContent));
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(shortTitleLongContent));
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(longTitleLongContent));
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(emojis));
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, getContentValues(symbols));
     }
 
     private static ContentValues getContentValues(Post post) {
