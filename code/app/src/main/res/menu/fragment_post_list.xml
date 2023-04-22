@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_item_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/baseline_search_24"
         app:actionViewClass="com.google.android.material.search.SearchView"
         app:showAsAction="ifRoom|collapseActionView"
         android:title="@string/search" />
