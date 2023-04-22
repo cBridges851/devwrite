@@ -1,8 +1,8 @@
 package uk.ac.wlv.devwrite;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -29,6 +29,14 @@ public class DatabaseManager {
     private DatabaseManager(Context context) {
         mContext = context.getApplicationContext();
         mDatabase = new PostBaseHelper(mContext).getWritableDatabase();
+    }
+
+    private static ContentValues getContentValues(Post post) {
+        ContentValues values = new ContentValues();
+        values.put(PostDbSchema.PostTable.Cols.UUID, post.getId().toString());
+        values.put(PostDbSchema.PostTable.Cols.TITLE, post.getTitle());
+        values.put(PostDbSchema.PostTable.Cols.CONTENT, post.getContent());
+        return values;
     }
 
     public List<Post> getPosts() {
