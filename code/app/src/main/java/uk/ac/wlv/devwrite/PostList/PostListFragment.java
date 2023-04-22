@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import java.util.List;
 import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Models.Post;
 import uk.ac.wlv.devwrite.R;
+import uk.ac.wlv.devwrite.Search.SearchHelper;
 
 public class PostListFragment extends Fragment {
     private RecyclerView mPostRecyclerView;
@@ -38,7 +40,23 @@ public class PostListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_item_search) {
-            Toast.makeText(getActivity(), "Search!", Toast.LENGTH_SHORT).show();
+            androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) item.getActionView();
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    List<Post> results = new SearchHelper().getResults(query, posts);
+                    updateUI(results);
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    List<Post> results = new SearchHelper().getResults(newText, posts);
+                    updateUI(results);
+                    return false;
+                }
+            });
         }
         return super.onOptionsItemSelected(item);
     }
