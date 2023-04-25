@@ -21,8 +21,7 @@
         </activity>
         <activity
             android:name=".PostEditor.PostActivity"
-            android:label="DevWrite"
-            android:theme="@style/Theme.DevWrite.NoActionBar">
+            android:label="DevWrite">
         </activity>
     </application>
 </manifest>
