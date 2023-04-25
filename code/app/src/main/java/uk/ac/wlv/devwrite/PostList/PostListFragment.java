@@ -1,5 +1,6 @@
 package uk.ac.wlv.devwrite.PostList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.LayoutInflater;
@@ -17,12 +18,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.List;
 
 import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Models.Post;
+import uk.ac.wlv.devwrite.PostEditor.PostPagerActivity;
 import uk.ac.wlv.devwrite.R;
 import uk.ac.wlv.devwrite.Search.SearchHelper;
 
@@ -30,6 +33,7 @@ public class PostListFragment extends Fragment {
     private RecyclerView mPostRecyclerView;
     private PostAdapter mPostAdapter;
     private List<Post> posts;
+    private MaterialButton mCreatePostButton;
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -72,6 +76,15 @@ public class PostListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post_list, container, false);
+
+        mCreatePostButton = view.findViewById(R.id.create_post_button);
+        mCreatePostButton.setOnClickListener(buttonView -> {
+            Post post = new Post();
+            DatabaseManager.get(getActivity()).addPost(post);
+            Intent intent = PostPagerActivity.newIntent(getActivity(), post.getId());
+            startActivity(intent);
+        });
+
         mPostRecyclerView = view.findViewById(R.id.post_recycler_view);
         mPostRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         posts = DatabaseManager.get(getActivity()).getPosts();
@@ -104,14 +117,14 @@ public class PostListFragment extends Fragment {
             mPost = post;
             String title = mPost.getTitle();
 
-            if (title.length() > 30) {
+            if (title != null && title.length() > 30) {
                 title = title.substring(0, 30);
                 title = title + "...";
             }
 
             mTitleTextView.setText(title);
             String content = mPost.getContent();
-            if (content.length() > 100) {
+            if (content != null && content.length() > 100) {
                 content = content.substring(0, 100);
                 content = content + "...";
             }

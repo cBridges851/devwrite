@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import uk.ac.wlv.devwrite.Models.Post;
 import uk.ac.wlv.devwrite.database.PostBaseHelper;
@@ -132,5 +133,28 @@ public class DatabaseManager {
         );
 
         return new PostCursorWrapper(cursor);
+    }
+
+    public void addPost(Post post) {
+        ContentValues values = getContentValues(post);
+        mDatabase.insert(PostDbSchema.PostTable.NAME, null, values);
+    }
+
+    public Post getPost(UUID id) {
+        PostCursorWrapper cursor = queryPosts(
+                PostDbSchema.PostTable.Cols.UUID + " = ?",
+                new String[] { id.toString() }
+        );
+
+        try {
+            if (cursor.getCount() == 0) {
+                return null;
+            }
+
+            cursor.moveToFirst();
+            return cursor.getPost();
+        } finally {
+            cursor.close();
+        }
     }
 }
