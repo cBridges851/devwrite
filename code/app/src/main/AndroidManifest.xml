@@ -20,8 +20,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PostEditor.PostPagerActivity"
-            android:label="DevWrite">
+            android:name=".PostEditor.PostActivity"
+            android:label="DevWrite"
+            android:theme="@style/Theme.DevWrite.NoActionBar">
         </activity>
     </application>
 </manifest>

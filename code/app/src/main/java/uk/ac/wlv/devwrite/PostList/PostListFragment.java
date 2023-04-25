@@ -2,14 +2,12 @@ package uk.ac.wlv.devwrite.PostList;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +23,7 @@ import java.util.List;
 
 import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Models.Post;
-import uk.ac.wlv.devwrite.PostEditor.PostPagerActivity;
+import uk.ac.wlv.devwrite.PostEditor.PostActivity;
 import uk.ac.wlv.devwrite.R;
 import uk.ac.wlv.devwrite.Search.SearchHelper;
 
@@ -81,7 +79,7 @@ public class PostListFragment extends Fragment {
         mCreatePostButton.setOnClickListener(buttonView -> {
             Post post = new Post();
             DatabaseManager.get(getActivity()).addPost(post);
-            Intent intent = PostPagerActivity.newIntent(getActivity(), post.getId());
+            Intent intent = PostActivity.newIntent(getActivity(), post.getId());
             startActivity(intent);
         });
 
