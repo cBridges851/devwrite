@@ -42,12 +42,20 @@ public class PostListFragment extends Fragment {
     private List<PostHolder> allPostHolders;
     private List<PostHolder> selectedPosts;
     private Menu mMenu;
+    private List<MenuItem> multiSelectMenuItems;
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        mMenu = menu;
         inflater.inflate(R.menu.fragment_post_list, menu);
+
+        mMenu = menu;
+        multiSelectMenuItems.add(mMenu.findItem(R.id.option_delete));
+
+        for (MenuItem menuItem : multiSelectMenuItems) {
+            menuItem.setVisible(false);
+        }
+
     }
 
     @Override
@@ -90,6 +98,10 @@ public class PostListFragment extends Fragment {
                 }
 
                 item.setTitle(R.string.deselect_all);
+
+                for (MenuItem menuItem : multiSelectMenuItems) {
+                    menuItem.setVisible(true);
+                }
             } else {
                 for (PostHolder postHolder : allPostHolders) {
                     postHolder.isSelected = false;
@@ -100,7 +112,12 @@ public class PostListFragment extends Fragment {
                     selectedPosts.remove(postHolder);
                 }
 
+                for (MenuItem menuItem : multiSelectMenuItems) {
+                    menuItem.setVisible(false);
+                }
+
                 item.setTitle(R.string.select_all);
+
             }
         }
         return super.onOptionsItemSelected(item);
@@ -112,6 +129,7 @@ public class PostListFragment extends Fragment {
         posts = DatabaseManager.get(getActivity()).getPosts();
         allPostHolders = new ArrayList<>();
         selectedPosts = new ArrayList<>();
+        multiSelectMenuItems = new ArrayList<>();
         setHasOptionsMenu(true);
     }
 
@@ -141,6 +159,11 @@ public class PostListFragment extends Fragment {
         posts = DatabaseManager.get(getActivity()).getPosts();
         selectedPosts = new ArrayList<>();
         multiSelectEnabled = false;
+
+        for (MenuItem menuItem : multiSelectMenuItems) {
+            menuItem.setVisible(false);
+        }
+
         updateUI(posts);
     }
 
@@ -202,11 +225,15 @@ public class PostListFragment extends Fragment {
                 selectedPosts.remove(this);
                 MenuItem item = mMenu.findItem(R.id.option_select_all);
                 item.setTitle(R.string.select_all);
-//                menuItem.setTitle(R.string.select_all);
 
                 if (selectedPosts.isEmpty()) {
                     multiSelectEnabled = false;
+
+                    for (MenuItem menuItem : multiSelectMenuItems) {
+                        menuItem.setVisible(false);
+                    }
                 }
+
             } else {
                 isSelected = true;
                 int color = MaterialColors.getColor(
@@ -216,6 +243,10 @@ public class PostListFragment extends Fragment {
                 mCheckBox.setVisibility(View.VISIBLE);
                 mCheckBox.setChecked(true);
                 selectedPosts.add(this);
+
+                for (MenuItem menuItem : multiSelectMenuItems) {
+                    menuItem.setVisible(true);
+                }
             }
         }
 
