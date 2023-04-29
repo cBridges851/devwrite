@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -38,6 +39,7 @@ public class PostListFragment extends Fragment {
     private List<Post> posts;
     private MaterialButton mCreatePostButton;
     private boolean multiSelectEnabled = false;
+    private List<PostHolder> allPostHolders;
     private List<PostHolder> selectedPosts;
 
     @Override
@@ -67,6 +69,23 @@ public class PostListFragment extends Fragment {
                 }
             });
         }
+
+        if (item.getItemId() == R.id.option_select_all) {
+            for (PostHolder postHolder : allPostHolders) {
+                postHolder.isSelected = true;
+                multiSelectEnabled = true;
+                int color = MaterialColors.getColor(
+                        requireView(),
+                        com.google.android.material.R.attr.colorSurfaceVariant);
+                postHolder.itemView.setBackgroundColor(color);
+                postHolder.mCheckBox.setVisibility(View.VISIBLE);
+                postHolder.mCheckBox.setChecked(true);
+
+                if (!selectedPosts.contains(postHolder)) {
+                    selectedPosts.add(postHolder);
+                }
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -74,6 +93,7 @@ public class PostListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         posts = DatabaseManager.get(getActivity()).getPosts();
+        allPostHolders = new ArrayList<>();
         selectedPosts = new ArrayList<>();
         setHasOptionsMenu(true);
     }
@@ -103,6 +123,7 @@ public class PostListFragment extends Fragment {
         super.onResume();
         posts = DatabaseManager.get(getActivity()).getPosts();
         selectedPosts = new ArrayList<>();
+        allPostHolders = new ArrayList<>();
         updateUI(posts);
     }
 
@@ -119,13 +140,17 @@ public class PostListFragment extends Fragment {
     private class PostHolder extends RecyclerView.ViewHolder {
         public MaterialTextView mTitleTextView;
         public MaterialTextView mContentTextView;
+        public MaterialCheckBox mCheckBox;
         public Post mPost;
         public boolean isSelected = false;
 
         public PostHolder(View itemView) {
             super(itemView);
+            allPostHolders.add(this);
             mTitleTextView = itemView.findViewById(R.id.list_item_post_title_text_view);
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
+            mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
+            mCheckBox.setVisibility(View.GONE);
 
             itemView.setOnClickListener(event -> {
                 if (!multiSelectEnabled) {
@@ -156,6 +181,7 @@ public class PostListFragment extends Fragment {
             if (isSelected) {
                 isSelected = false;
                 itemView.setBackgroundColor(Color.TRANSPARENT);
+                mCheckBox.setVisibility(View.GONE);
                 selectedPosts.remove(this);
 
                 if (selectedPosts.isEmpty()) {
@@ -167,6 +193,8 @@ public class PostListFragment extends Fragment {
                         requireView(),
                         com.google.android.material.R.attr.colorSurfaceVariant);
                 itemView.setBackgroundColor(color);
+                mCheckBox.setVisibility(View.VISIBLE);
+                mCheckBox.setChecked(true);
                 selectedPosts.add(this);
             }
         }
