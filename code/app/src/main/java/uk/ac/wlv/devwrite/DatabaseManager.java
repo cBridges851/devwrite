@@ -167,4 +167,13 @@ public class DatabaseManager {
                 new String[] { uuidString }
         );
     }
+
+    public void deletePost(Post post) {
+        String uuidString = post.getId().toString();
+        mDatabase.delete(
+                PostDbSchema.PostTable.NAME,
+                PostDbSchema.PostTable.Cols.UUID + "= ?",
+                new String[] { uuidString }
+        );
+    }
 }

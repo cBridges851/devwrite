@@ -55,6 +55,11 @@ public class PostFragment extends Fragment {
             Toast.makeText(getActivity(), mPost.getTitle() + " Saved", Toast.LENGTH_SHORT).show();
         }
 
+        if (item.getItemId() == R.id.option_delete) {
+            DatabaseManager.get(getActivity()).deletePost(mPost);
+            requireActivity().finish();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

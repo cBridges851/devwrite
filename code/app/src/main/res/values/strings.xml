@@ -1,14 +1,5 @@
 <resources>
     <string name="app_name">DevWrite</string>
-    <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="list_item_content_description">A post with a title and preview of the content</string>
     <string name="search">Search</string>
     <string name="create_post">Create Post</string>
@@ -16,4 +7,5 @@
     <string name="content">Content</string>
     <string name="save">Save</string>
     <string name="saves_the_post">Saves the post</string>
+    <string name="delete">Delete</string>
 </resources>
