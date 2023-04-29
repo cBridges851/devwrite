@@ -24,6 +24,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -122,20 +123,25 @@ public class PostListFragment extends Fragment {
         }
 
         if (item.getItemId() == R.id.option_delete) {
+            List<PostHolder> selectedPostsTemp = new ArrayList<>(selectedPosts);
+            Collections.copy(selectedPostsTemp, selectedPosts);
+
             for (PostHolder postHolder : selectedPosts) {
                 postHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
                 postHolder.mCheckBox.setVisibility(View.GONE);
                 DatabaseManager.get(getActivity()).deletePost(postHolder.mPost);
                 posts = DatabaseManager.get(getActivity()).getPosts();
                 allPostHolders.remove(postHolder);
-                selectedPosts.remove(postHolder);
+                selectedPostsTemp.remove(postHolder);
 
-                if (selectedPosts.isEmpty()) {
+                if (selectedPostsTemp.isEmpty()) {
                     multiSelectEnabled = false;
                 }
 
                 updateUI(posts);
             }
+
+            Collections.copy(selectedPosts, selectedPostsTemp);
         }
 
         return super.onOptionsItemSelected(item);
