@@ -1,6 +1,7 @@
 package uk.ac.wlv.devwrite.PostList;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -8,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,9 +19,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Models.Post;
@@ -32,6 +37,8 @@ public class PostListFragment extends Fragment {
     private PostAdapter mPostAdapter;
     private List<Post> posts;
     private MaterialButton mCreatePostButton;
+    private boolean multiSelectEnabled = false;
+    private List<PostHolder> selectedPosts;
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -67,6 +74,7 @@ public class PostListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         posts = DatabaseManager.get(getActivity()).getPosts();
+        selectedPosts = new ArrayList<>();
         setHasOptionsMenu(true);
     }
 
@@ -94,6 +102,7 @@ public class PostListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         posts = DatabaseManager.get(getActivity()).getPosts();
+        selectedPosts = new ArrayList<>();
         updateUI(posts);
     }
 
@@ -111,6 +120,7 @@ public class PostListFragment extends Fragment {
         public MaterialTextView mTitleTextView;
         public MaterialTextView mContentTextView;
         public Post mPost;
+        public boolean isSelected = false;
 
         public PostHolder(View itemView) {
             super(itemView);
@@ -118,9 +128,47 @@ public class PostListFragment extends Fragment {
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
 
             itemView.setOnClickListener(event -> {
-                Intent intent = PostActivity.newIntent(getActivity(), mPost.getId());
-                startActivity(intent);
+                if (!multiSelectEnabled) {
+                    Intent intent = PostActivity.newIntent(getActivity(), mPost.getId());
+                    startActivity(intent);
+                    return;
+                }
+
+                toggleSelect();
             });
+
+            itemView.setOnLongClickListener(event -> {
+                if (!multiSelectEnabled) {
+                    multiSelectEnabled = true;
+                } else {
+                    return false;
+                }
+
+                toggleSelect();
+
+                return true;
+            });
+
+
+        }
+
+        private void toggleSelect() {
+            if (isSelected) {
+                isSelected = false;
+                itemView.setBackgroundColor(Color.TRANSPARENT);
+                selectedPosts.remove(this);
+
+                if (selectedPosts.isEmpty()) {
+                    multiSelectEnabled = false;
+                }
+            } else {
+                isSelected = true;
+                int color = MaterialColors.getColor(
+                        requireView(),
+                        com.google.android.material.R.attr.colorSurfaceVariant);
+                itemView.setBackgroundColor(color);
+                selectedPosts.add(this);
+            }
         }
 
         public void bindPost(Post post) {
