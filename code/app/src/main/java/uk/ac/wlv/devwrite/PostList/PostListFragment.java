@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -215,6 +216,7 @@ public class PostListFragment extends Fragment {
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
             mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
             mCheckBox.setVisibility(View.GONE);
+            mCheckBox.setOnCheckedChangeListener((compoundButton, b) -> toggleSelect());
 
             itemView.setOnClickListener(event -> {
                 if (!multiSelectEnabled) {
