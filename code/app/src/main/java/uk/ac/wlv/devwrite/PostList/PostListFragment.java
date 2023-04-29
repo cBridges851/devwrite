@@ -41,10 +41,12 @@ public class PostListFragment extends Fragment {
     private boolean multiSelectEnabled = false;
     private List<PostHolder> allPostHolders;
     private List<PostHolder> selectedPosts;
+    private Menu mMenu;
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        mMenu = menu;
         inflater.inflate(R.menu.fragment_post_list, menu);
     }
 
@@ -71,19 +73,34 @@ public class PostListFragment extends Fragment {
         }
 
         if (item.getItemId() == R.id.option_select_all) {
-            for (PostHolder postHolder : allPostHolders) {
-                postHolder.isSelected = true;
-                multiSelectEnabled = true;
-                int color = MaterialColors.getColor(
-                        requireView(),
-                        com.google.android.material.R.attr.colorSurfaceVariant);
-                postHolder.itemView.setBackgroundColor(color);
-                postHolder.mCheckBox.setVisibility(View.VISIBLE);
-                postHolder.mCheckBox.setChecked(true);
+            if (selectedPosts.size() != allPostHolders.size()) {
+                for (PostHolder postHolder : allPostHolders) {
+                    postHolder.isSelected = true;
+                    multiSelectEnabled = true;
+                    int color = MaterialColors.getColor(
+                            requireView(),
+                            com.google.android.material.R.attr.colorSurfaceVariant);
+                    postHolder.itemView.setBackgroundColor(color);
+                    postHolder.mCheckBox.setVisibility(View.VISIBLE);
+                    postHolder.mCheckBox.setChecked(true);
 
-                if (!selectedPosts.contains(postHolder)) {
-                    selectedPosts.add(postHolder);
+                    if (!selectedPosts.contains(postHolder)) {
+                        selectedPosts.add(postHolder);
+                    }
                 }
+
+                item.setTitle(R.string.deselect_all);
+            } else {
+                for (PostHolder postHolder : allPostHolders) {
+                    postHolder.isSelected = false;
+                    multiSelectEnabled = false;
+                    postHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
+                    postHolder.mCheckBox.setVisibility(View.GONE);
+
+                    selectedPosts.remove(postHolder);
+                }
+
+                item.setTitle(R.string.select_all);
             }
         }
         return super.onOptionsItemSelected(item);
@@ -123,7 +140,7 @@ public class PostListFragment extends Fragment {
         super.onResume();
         posts = DatabaseManager.get(getActivity()).getPosts();
         selectedPosts = new ArrayList<>();
-        allPostHolders = new ArrayList<>();
+        multiSelectEnabled = false;
         updateUI(posts);
     }
 
@@ -183,6 +200,9 @@ public class PostListFragment extends Fragment {
                 itemView.setBackgroundColor(Color.TRANSPARENT);
                 mCheckBox.setVisibility(View.GONE);
                 selectedPosts.remove(this);
+                MenuItem item = mMenu.findItem(R.id.option_select_all);
+                item.setTitle(R.string.select_all);
+//                menuItem.setTitle(R.string.select_all);
 
                 if (selectedPosts.isEmpty()) {
                     multiSelectEnabled = false;
