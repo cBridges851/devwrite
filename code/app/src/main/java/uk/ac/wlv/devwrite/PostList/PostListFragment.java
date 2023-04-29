@@ -90,6 +90,13 @@ public class PostListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        posts = DatabaseManager.get(getActivity()).getPosts();
+        updateUI(posts);
+    }
+
     private void updateUI(List<Post> posts) {
         if (mPostAdapter == null) {
             mPostAdapter = new PostAdapter(posts);

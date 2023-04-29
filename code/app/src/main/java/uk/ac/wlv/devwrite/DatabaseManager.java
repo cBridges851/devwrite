@@ -157,4 +157,14 @@ public class DatabaseManager {
             cursor.close();
         }
     }
+
+    public void updatePost(Post post) {
+        String uuidString = post.getId().toString();
+        ContentValues values = getContentValues(post);
+        mDatabase.update(PostDbSchema.PostTable.NAME,
+                values,
+                PostDbSchema.PostTable.Cols.UUID + " = ?",
+                new String[] { uuidString }
+        );
+    }
 }

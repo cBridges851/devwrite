@@ -5,24 +5,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/title_field"
+        android:id="@+id/title_field_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:hint="Title">
+        android:hint="@string/title">
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/title_field_input"
             android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/content_field"
+        android:id="@+id/content_field_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:padding="8dp"
-        android:hint="Content">
+        android:hint="@string/content">
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/content_field_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:lines="8"
