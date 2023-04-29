@@ -116,6 +116,11 @@ public class PostListFragment extends Fragment {
             super(itemView);
             mTitleTextView = itemView.findViewById(R.id.list_item_post_title_text_view);
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
+
+            itemView.setOnClickListener(event -> {
+                Intent intent = PostActivity.newIntent(getActivity(), mPost.getId());
+                startActivity(intent);
+            });
         }
 
         public void bindPost(Post post) {
