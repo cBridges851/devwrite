@@ -120,6 +120,15 @@ public class PostListFragment extends Fragment {
 
             }
         }
+
+        if (item.getItemId() == R.id.option_delete) {
+            for (PostHolder postHolder : selectedPosts) {
+                DatabaseManager.get(getActivity()).deletePost(postHolder.mPost);
+                posts = DatabaseManager.get(getActivity()).getPosts();
+                updateUI(posts);
+            }
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
