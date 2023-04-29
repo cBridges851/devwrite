@@ -208,7 +208,7 @@ public class PostListFragment extends Fragment {
         public MaterialTextView mContentTextView;
         public MaterialCheckBox mCheckBox;
         public Post mPost;
-        public boolean isSelected = false;
+        public boolean isSelected;
 
         public PostHolder(View itemView) {
             super(itemView);
@@ -217,6 +217,7 @@ public class PostListFragment extends Fragment {
             mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
             mCheckBox.setVisibility(View.GONE);
             mCheckBox.setOnCheckedChangeListener((compoundButton, b) -> toggleSelect());
+            isSelected = false;
 
             itemView.setOnClickListener(event -> {
                 if (!multiSelectEnabled) {
@@ -261,6 +262,7 @@ public class PostListFragment extends Fragment {
                 }
 
             } else {
+                selectedPosts.add(this);
                 isSelected = true;
                 int color = MaterialColors.getColor(
                         requireView(),
@@ -268,7 +270,6 @@ public class PostListFragment extends Fragment {
                 itemView.setBackgroundColor(color);
                 mCheckBox.setVisibility(View.VISIBLE);
                 mCheckBox.setChecked(true);
-                selectedPosts.add(this);
 
                 for (MenuItem menuItem : multiSelectMenuItems) {
                     menuItem.setVisible(true);
