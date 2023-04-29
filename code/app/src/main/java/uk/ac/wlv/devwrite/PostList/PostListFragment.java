@@ -123,8 +123,17 @@ public class PostListFragment extends Fragment {
 
         if (item.getItemId() == R.id.option_delete) {
             for (PostHolder postHolder : selectedPosts) {
+                postHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
+                postHolder.mCheckBox.setVisibility(View.GONE);
                 DatabaseManager.get(getActivity()).deletePost(postHolder.mPost);
                 posts = DatabaseManager.get(getActivity()).getPosts();
+                allPostHolders.remove(postHolder);
+                selectedPosts.remove(postHolder);
+
+                if (selectedPosts.isEmpty()) {
+                    multiSelectEnabled = false;
+                }
+
                 updateUI(posts);
             }
         }
@@ -167,6 +176,7 @@ public class PostListFragment extends Fragment {
         super.onResume();
         posts = DatabaseManager.get(getActivity()).getPosts();
         selectedPosts = new ArrayList<>();
+        allPostHolders = new ArrayList<>();
         multiSelectEnabled = false;
 
         for (MenuItem menuItem : multiSelectMenuItems) {
@@ -195,7 +205,6 @@ public class PostListFragment extends Fragment {
 
         public PostHolder(View itemView) {
             super(itemView);
-            allPostHolders.add(this);
             mTitleTextView = itemView.findViewById(R.id.list_item_post_title_text_view);
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
             mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
@@ -260,6 +269,7 @@ public class PostListFragment extends Fragment {
         }
 
         public void bindPost(Post post) {
+            allPostHolders.add(this);
             mPost = post;
             String title = mPost.getTitle();
 
