@@ -1,6 +1,5 @@
 package uk.ac.wlv.devwrite.PostEditor;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,17 +16,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -48,7 +44,8 @@ public class PostFragment extends Fragment {
     private static final String ARG_POST_ID = "post_id";
     private static final String DIALOG_CHOOSE_IMAGE = "DialogChooseImage";
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
-    private static final int REQUEST_PHOTO = 2;
+    private static final int REQUEST_CAMERA_PHOTO = 2;
+    private static final int REQUEST_GALLERY_PHOTO = 3;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -185,11 +182,17 @@ public class PostFragment extends Fragment {
                     );
                 }
 
-                startActivityForResult(captureImage, REQUEST_PHOTO);
+                startActivityForResult(captureImage, REQUEST_CAMERA_PHOTO);
+            }
+
+            if (Objects.equals(selectedItem, getString(R.string.select_from_gallery))) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GALLERY_PHOTO);
             }
         }
 
-        if (requestCode == REQUEST_PHOTO) {
+        if (requestCode == REQUEST_CAMERA_PHOTO) {
             Uri uri = FileProvider.getUriForFile(
                     getActivity(),
                     "uk.ac.wlv.devwrite.fileprovider",
@@ -197,6 +200,13 @@ public class PostFragment extends Fragment {
             );
 
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updatePhotoView();
+        }
+
+        if (requestCode == REQUEST_GALLERY_PHOTO) {
+            Uri selectedImageUri = data.getData();
+
+            mPhotoFile = new File(selectedImageUri.getPath());
             updatePhotoView();
         }
     }
