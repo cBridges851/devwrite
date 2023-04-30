@@ -205,9 +205,7 @@ public class PostFragment extends Fragment {
 
         if (requestCode == REQUEST_GALLERY_PHOTO) {
             Uri selectedImageUri = data.getData();
-
-            mPhotoFile = new File(selectedImageUri.getPath());
-            updatePhotoView();
+            mPhotoView.setImageURI(selectedImageUri);
         }
     }
 
@@ -215,8 +213,9 @@ public class PostFragment extends Fragment {
         if (mPhotoFile == null || !mPhotoFile.exists()) {
             mPhotoView.setImageDrawable(null);
         } else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
-            mPhotoView.setImageBitmap(bitmap);
+//            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
+            mPhotoView.setImageURI(Uri.parse(mPhotoFile.getPath()));
+//            mPhotoView.setImageBitmap(bitmap);
         }
     }
 }
