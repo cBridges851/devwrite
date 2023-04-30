@@ -25,7 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -35,6 +37,7 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
+import uk.ac.wlv.devwrite.ChooseImageDialogFragment;
 import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Images.PictureUtils;
 import uk.ac.wlv.devwrite.Models.Post;
@@ -42,7 +45,9 @@ import uk.ac.wlv.devwrite.R;
 
 public class PostFragment extends Fragment {
     private static final String ARG_POST_ID = "post_id";
-    private static final int REQUEST_PHOTO = 1;
+    private static final String DIALOG_CHOOSE_IMAGE = "DialogChooseImage";
+    private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
+    private static final int REQUEST_PHOTO = 2;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -141,22 +146,25 @@ public class PostFragment extends Fragment {
                 captureImage.resolveActivity(packageManager) != null;
         mChooseImageButton.setEnabled(canTakePhoto);
         mChooseImageButton.setOnClickListener(event -> {
-            Uri uri = FileProvider.getUriForFile(getActivity(),
-                    "uk.ac.wlv.devwrite.fileprovider", mPhotoFile);
-            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            List<ResolveInfo> cameraActivities = getActivity()
-                    .getPackageManager()
-                    .queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
-
-            for (ResolveInfo activity : cameraActivities) {
-                getActivity().grantUriPermission(
-                        activity.activityInfo.packageName,
-                        uri,
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                );
-            }
-
-            startActivityForResult(captureImage, REQUEST_PHOTO);
+            DialogFragment chooseImageFragment = ChooseImageDialogFragment.newInstance();
+            chooseImageFragment.setTargetFragment(PostFragment.this, REQUEST_CHOOSE_IMAGE_OPTION);
+            chooseImageFragment.show(getFragmentManager(), DIALOG_CHOOSE_IMAGE);
+//            Uri uri = FileProvider.getUriForFile(getActivity(),
+//                    "uk.ac.wlv.devwrite.fileprovider", mPhotoFile);
+//            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+//            List<ResolveInfo> cameraActivities = getActivity()
+//                    .getPackageManager()
+//                    .queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
+//
+//            for (ResolveInfo activity : cameraActivities) {
+//                getActivity().grantUriPermission(
+//                        activity.activityInfo.packageName,
+//                        uri,
+//                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+//                );
+//            }
+//
+//            startActivityForResult(captureImage, REQUEST_PHOTO);
         });
 
         updatePhotoView();
@@ -168,6 +176,12 @@ public class PostFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             return;
+        }
+
+        if (requestCode == REQUEST_CHOOSE_IMAGE_OPTION) {
+            assert data != null;
+            String selectedItem = (String) data.getSerializableExtra(ChooseImageDialogFragment.EXTRA_OPTION);
+            Toast.makeText(getActivity(), selectedItem, Toast.LENGTH_SHORT).show();
         }
 
         if (requestCode == REQUEST_PHOTO) {
