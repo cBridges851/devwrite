@@ -1,9 +1,11 @@
 package uk.ac.wlv.devwrite.PostEditor;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 import uk.ac.wlv.devwrite.DatabaseManager;
+import uk.ac.wlv.devwrite.Images.PictureUtils;
 import uk.ac.wlv.devwrite.Models.Post;
 import uk.ac.wlv.devwrite.R;
 
@@ -129,35 +132,62 @@ public class PostFragment extends Fragment {
             }
         });
 
+        mPhotoView = view.findViewById(R.id.post_photo);
+
         mChooseImageButton = view.findViewById(R.id.choose_image_button);
-        final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         PackageManager packageManager = requireActivity().getPackageManager();
+        final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         boolean canTakePhoto = mPhotoFile != null &&
                 captureImage.resolveActivity(packageManager) != null;
-        Uri uri = FileProvider.getUriForFile(getActivity(),
-                "uk.ac.wlv.devwrite.fileprovider", mPhotoFile);
-        captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        List<ResolveInfo> cameraActivities = getActivity()
-                .getPackageManager()
-                .queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
+        mChooseImageButton.setEnabled(canTakePhoto);
+        mChooseImageButton.setOnClickListener(event -> {
+            Uri uri = FileProvider.getUriForFile(getActivity(),
+                    "uk.ac.wlv.devwrite.fileprovider", mPhotoFile);
+            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            List<ResolveInfo> cameraActivities = getActivity()
+                    .getPackageManager()
+                    .queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
 
-        for (ResolveInfo activity : cameraActivities) {
-            getActivity().grantUriPermission(
-                    activity.activityInfo.packageName,
-                    uri,
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            );
+            for (ResolveInfo activity : cameraActivities) {
+                getActivity().grantUriPermission(
+                        activity.activityInfo.packageName,
+                        uri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                );
+            }
 
             startActivityForResult(captureImage, REQUEST_PHOTO);
-        }
+        });
+
+        updatePhotoView();
 
         return view;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
 
-        // TODO: Fill this in
+        if (requestCode == REQUEST_PHOTO) {
+            Uri uri = FileProvider.getUriForFile(
+                    getActivity(),
+                    "uk.ac.wlv.devwrite.fileprovider",
+                    mPhotoFile
+            );
+
+            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updatePhotoView();
+        }
+    }
+
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists()) {
+            mPhotoView.setImageDrawable(null);
+        } else {
+            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
+            mPhotoView.setImageBitmap(bitmap);
+        }
     }
 }

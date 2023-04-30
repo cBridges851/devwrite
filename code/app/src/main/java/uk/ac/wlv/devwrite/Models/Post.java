@@ -38,4 +38,9 @@ public class Post {
     public void setContent(String content) {
         mContent = content;
     }
+
+    public String getPhotoFileName() {
+        return "IMG_" + getId().toString() + ".jpg";
+    }
+
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -175,5 +176,10 @@ public class DatabaseManager {
                 PostDbSchema.PostTable.Cols.UUID + "= ?",
                 new String[] { uuidString }
         );
+    }
+
+    public File getPhotoFile(Post post) {
+        File filesDirectory = mContext.getFilesDir();
+        return new File(filesDirectory, post.getPhotoFileName());
     }
 }
