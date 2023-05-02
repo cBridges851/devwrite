@@ -14,4 +14,5 @@
     <string name="take_photo">Take a photo</string>
     <string name="select_from_gallery">Select from gallery</string>
     <string name="publish">Publish</string>
+    <string name="share_via_email">Share Via Email</string>
 </resources>

@@ -91,6 +91,10 @@ public class PostFragment extends Fragment {
             new Sharer().sharePostToLinkedIn(this, mPost.getContent());
         }
 
+        if (item.getItemId() == R.id.option_share_via_email) {
+            new Sharer().sharePostToEmail(this, mPost.getTitle(), mPost.getContent());
+        }
+
         if (item.getItemId() == R.id.option_delete) {
             DatabaseManager.get(getActivity()).deletePost(mPost);
             requireActivity().finish();
