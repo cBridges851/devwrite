@@ -101,6 +101,7 @@ public class DatabaseManager {
         values.put(PostDbSchema.PostTable.Cols.UUID, post.getId().toString());
         values.put(PostDbSchema.PostTable.Cols.TITLE, post.getTitle());
         values.put(PostDbSchema.PostTable.Cols.CONTENT, post.getContent());
+        values.put(PostDbSchema.PostTable.Cols.URI, post.getUri().toString());
         return values;
     }
 

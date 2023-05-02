@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class PostBaseHelper extends SQLiteOpenHelper {
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static final String DATABASE_NAME = "postBase.db";
 
     public PostBaseHelper(Context context) {
@@ -18,7 +18,8 @@ public class PostBaseHelper extends SQLiteOpenHelper {
                 "_id integer primary key autoincrement, " +
                 PostDbSchema.PostTable.Cols.UUID + ", " +
                 PostDbSchema.PostTable.Cols.TITLE + ", " +
-                PostDbSchema.PostTable.Cols.CONTENT +
+                PostDbSchema.PostTable.Cols.CONTENT + ", " +
+                PostDbSchema.PostTable.Cols.URI +
                 ")"
         );
     }

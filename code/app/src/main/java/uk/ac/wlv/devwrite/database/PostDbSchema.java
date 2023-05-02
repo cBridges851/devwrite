@@ -1,5 +1,7 @@
 package uk.ac.wlv.devwrite.database;
 
+import android.net.Uri;
+
 public class PostDbSchema {
     public static class PostTable {
         public static final String NAME = "posts";
@@ -8,6 +10,7 @@ public class PostDbSchema {
             public static final String UUID = "uuid";
             public static final String TITLE = "title";
             public static final String CONTENT = "content";
+            public static final String URI = "uri";
         }
 
     }

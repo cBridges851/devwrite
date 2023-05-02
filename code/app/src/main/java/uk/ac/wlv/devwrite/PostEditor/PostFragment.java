@@ -1,10 +1,14 @@
 package uk.ac.wlv.devwrite.PostEditor;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,6 +25,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -30,6 +36,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,6 +54,8 @@ public class PostFragment extends Fragment {
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
     private static final int REQUEST_CAMERA_PHOTO = 2;
     private static final int REQUEST_GALLERY_PHOTO = 3;
+    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 4;
+    private static final int REQUEST_OPEN_PHOTO = 5;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -90,6 +100,16 @@ public class PostFragment extends Fragment {
         UUID postId = (UUID) getArguments().getSerializable(ARG_POST_ID);
         mPost = DatabaseManager.get(getActivity()).getPost(postId);
         mPhotoFile = DatabaseManager.get(getActivity()).getPhotoFile(mPost);
+
+        if (getActivity().getApplicationContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    getActivity(),
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                    PERMISSION_READ_EXTERNAL_STORAGE
+            );
+        }
+
         setHasOptionsMenu(true);
     }
 
@@ -150,7 +170,7 @@ public class PostFragment extends Fragment {
             chooseImageFragment.show(getFragmentManager(), DIALOG_CHOOSE_IMAGE);
         });
 
-        updatePhotoView();
+//        updatePhotoView();
 
         return view;
     }
@@ -199,23 +219,42 @@ public class PostFragment extends Fragment {
                     mPhotoFile
             );
 
+            mPost.setUri(uri);
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            updatePhotoView();
+//            updatePhotoView();
         }
 
         if (requestCode == REQUEST_GALLERY_PHOTO) {
             Uri selectedImageUri = data.getData();
+            mPost.setUri(selectedImageUri);
             mPhotoView.setImageURI(selectedImageUri);
+
         }
     }
 
-    private void updatePhotoView() {
-        if (mPhotoFile == null || !mPhotoFile.exists()) {
-            mPhotoView.setImageDrawable(null);
-        } else {
-//            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
-            mPhotoView.setImageURI(Uri.parse(mPhotoFile.getPath()));
-//            mPhotoView.setImageBitmap(bitmap);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                updatePhotoView();
+            }
         }
     }
+
+//    private void updatePhotoView() {
+//        if (mPost.getUri().toString().equals("")) {
+//            mPhotoView.setImageDrawable(null);
+//        } else {
+//            try {
+//                getActivity().getContentResolver()
+//                        .takePersistableUriPermission(mPost.getUri(),
+//                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                InputStream inputStream = getActivity().getContentResolver().openInputStream(mPost.getUri());
+//                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+//                mPhotoView.setImageBitmap(bitmap);
+//            } catch (FileNotFoundException exception) {
+//                Toast.makeText(getActivity(), "File Not Found", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 }

@@ -1,11 +1,14 @@
 package uk.ac.wlv.devwrite.Models;
 
+import android.net.Uri;
+
 import java.util.UUID;
 
 public class Post {
     private UUID mId;
     private String mTitle;
     private String mContent;
+    private Uri mUri = Uri.EMPTY;
 
     public Post() {
         this(UUID.randomUUID());
@@ -43,4 +46,11 @@ public class Post {
         return "IMG_" + getId().toString() + ".jpg";
     }
 
+    public Uri getUri() {
+        return mUri;
+    }
+
+    public void setUri(Uri uri) {
+        mUri = uri;
+    }
 }
