@@ -213,21 +213,21 @@ public class PostFragment extends Fragment {
         }
 
         if (requestCode == REQUEST_CAMERA_PHOTO) {
-            Uri uri = FileProvider.getUriForFile(
-                    getActivity(),
-                    "uk.ac.wlv.devwrite.fileprovider",
-                    mPhotoFile
-            );
-
-            mPost.setUri(uri);
-            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//            Uri uri = FileProvider.getUriForFile(
+//                    getActivity(),
+//                    "uk.ac.wlv.devwrite.fileprovider",
+//                    mPhotoFile
+//            );
+//
+//            mPost.setUri(uri);
+//            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 //            updatePhotoView();
         }
 
         if (requestCode == REQUEST_GALLERY_PHOTO) {
-            Uri selectedImageUri = data.getData();
-            mPost.setUri(selectedImageUri);
-            mPhotoView.setImageURI(selectedImageUri);
+//            Uri selectedImageUri = data.getData();
+//            mPost.setUri(selectedImageUri);
+//            mPhotoView.setImageURI(selectedImageUri);
 
         }
     }
