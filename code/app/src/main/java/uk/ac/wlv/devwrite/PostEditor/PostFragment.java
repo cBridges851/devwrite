@@ -47,6 +47,7 @@ import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Images.PictureUtils;
 import uk.ac.wlv.devwrite.Models.Post;
 import uk.ac.wlv.devwrite.R;
+import uk.ac.wlv.devwrite.Sharing.Sharer;
 
 public class PostFragment extends Fragment {
     private static final String ARG_POST_ID = "post_id";
@@ -84,6 +85,10 @@ public class PostFragment extends Fragment {
         if (item.getItemId() == R.id.menu_item_save) {
             DatabaseManager.get(getActivity()).updatePost(mPost);
             Toast.makeText(getActivity(), mPost.getTitle() + " Saved", Toast.LENGTH_SHORT).show();
+        }
+
+        if (item.getItemId() == R.id.option_publish) {
+            new Sharer().sharePostToLinkedIn(this, mPost.getContent());
         }
 
         if (item.getItemId() == R.id.option_delete) {
