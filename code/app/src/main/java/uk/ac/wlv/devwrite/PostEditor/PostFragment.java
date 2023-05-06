@@ -53,10 +53,8 @@ public class PostFragment extends Fragment {
     private static final String ARG_POST_ID = "post_id";
     private static final String DIALOG_CHOOSE_IMAGE = "DialogChooseImage";
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
-    private static final int REQUEST_CAMERA_PHOTO = 2;
-    private static final int REQUEST_GALLERY_PHOTO = 3;
-    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 4;
-    private static final int REQUEST_OPEN_PHOTO = 5;
+    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 2;
+    private static final int REQUEST_PHOTO_FROM_CAMERA = 3;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -178,9 +176,7 @@ public class PostFragment extends Fragment {
             chooseImageFragment.setTargetFragment(PostFragment.this, REQUEST_CHOOSE_IMAGE_OPTION);
             chooseImageFragment.show(getFragmentManager(), DIALOG_CHOOSE_IMAGE);
         });
-
-//        updatePhotoView();
-
+        updatePhotoView();
         return view;
     }
 
@@ -196,8 +192,12 @@ public class PostFragment extends Fragment {
             Toast.makeText(getActivity(), selectedItem, Toast.LENGTH_SHORT).show();
 
             if (Objects.equals(selectedItem, getString(R.string.take_photo))) {
-                Uri uri = FileProvider.getUriForFile(getActivity(),
-                        "uk.ac.wlv.devwrite.fileprovider", mPhotoFile);
+                Uri uri = FileProvider.getUriForFile(
+                        getActivity(),
+                        "uk.ac.wlv.devwrite.fileprovider",
+                        mPhotoFile
+                );
+
                 captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 List<ResolveInfo> cameraActivities = getActivity()
                         .getPackageManager()
@@ -211,59 +211,28 @@ public class PostFragment extends Fragment {
                     );
                 }
 
-                startActivityForResult(captureImage, REQUEST_CAMERA_PHOTO);
-            }
-
-            if (Objects.equals(selectedItem, getString(R.string.select_from_gallery))) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GALLERY_PHOTO);
+                startActivityForResult(captureImage, REQUEST_PHOTO_FROM_CAMERA);
             }
         }
 
-        if (requestCode == REQUEST_CAMERA_PHOTO) {
-//            Uri uri = FileProvider.getUriForFile(
-//                    getActivity(),
-//                    "uk.ac.wlv.devwrite.fileprovider",
-//                    mPhotoFile
-//            );
-//
-//            mPost.setUri(uri);
-//            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//            updatePhotoView();
-        }
+        if (requestCode == REQUEST_PHOTO_FROM_CAMERA) {
+            Uri uri = FileProvider.getUriForFile(
+                    getActivity(),
+                    "uk.ac.wlv.devwrite.fileprovider",
+                    mPhotoFile
+            );
 
-        if (requestCode == REQUEST_GALLERY_PHOTO) {
-//            Uri selectedImageUri = data.getData();
-//            mPost.setUri(selectedImageUri);
-//            mPhotoView.setImageURI(selectedImageUri);
-
+            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updatePhotoView();
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                updatePhotoView();
-            }
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists()) {
+            mPhotoView.setImageDrawable(null);
+        } else {
+            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), requireActivity());
+            mPhotoView.setImageBitmap(bitmap);
         }
     }
-
-//    private void updatePhotoView() {
-//        if (mPost.getUri().toString().equals("")) {
-//            mPhotoView.setImageDrawable(null);
-//        } else {
-//            try {
-//                getActivity().getContentResolver()
-//                        .takePersistableUriPermission(mPost.getUri(),
-//                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//                InputStream inputStream = getActivity().getContentResolver().openInputStream(mPost.getUri());
-//                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-//                mPhotoView.setImageBitmap(bitmap);
-//            } catch (FileNotFoundException exception) {
-//                Toast.makeText(getActivity(), "File Not Found", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//    }
 }
