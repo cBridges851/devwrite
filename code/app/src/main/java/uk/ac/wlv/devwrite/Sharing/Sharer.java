@@ -11,6 +11,7 @@ public class Sharer {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setPackage("com.linkedin.android");
         shareIntent.setType("text/*");
+        shareIntent.setType("image/*");
         shareIntent.putExtra(Intent.EXTRA_TEXT, content);
         shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
         

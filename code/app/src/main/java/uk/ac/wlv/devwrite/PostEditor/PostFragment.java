@@ -64,6 +64,7 @@ public class PostFragment extends Fragment {
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
     private static final int REQUEST_PHOTO_FROM_CAMERA = 2;
     private static final int REQUEST_PHOTO_FROM_GALLERY = 3;
+    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 4;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -206,18 +207,6 @@ public class PostFragment extends Fragment {
                         requireActivity()
                 );
                 mPhotoView.setImageBitmap(scaledBitmap);
-    //            FileOutputStream fileOutputStream = new FileOutputStream(this.mPhotoFile);
-    //            Bitmap.CompressFormat compressFormat = getCompressFormat(uri);
-    //            scaledBitmap.compress(compressFormat, 100, fileOutputStream);
-    //            fileOutputStream.flush();
-    //            fileOutputStream.close();
-    //        } catch (FileNotFoundException exception) {
-    //            Toast.makeText(getActivity(), "Cannot Display Image - File not found", Toast.LENGTH_SHORT).show();
-    //            Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
-    //        } catch (IOException exception) {
-    //            Toast.makeText(getActivity(), "Cannot Display Image - Unable to flush or close stream", Toast.LENGTH_SHORT).show();
-    //            Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
-    //        }
             } catch (Exception exception) {
                 Toast.makeText(getActivity(), "Cannot Display Image", Toast.LENGTH_SHORT).show();
                 Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
@@ -263,6 +252,13 @@ public class PostFragment extends Fragment {
             }
 
             if (Objects.equals(selectedItem, getString(R.string.select_from_gallery))) {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
+                            PERMISSION_READ_EXTERNAL_STORAGE
+                    );
+                }
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(
@@ -299,6 +295,9 @@ public class PostFragment extends Fragment {
                 String[] projection = { MediaStore.Images.Media.DATA };
                 String selection = MediaStore.Images.Media._ID + "=?";
                 String[] selectionArgs = { id };
+//                String debugging = "ID: " + id + "\nSelection Criteria: " + selection + ", " + selectionArgs[0];
+//                Toast.makeText(getActivity(), debugging, Toast.LENGTH_LONG).show();
+
                 Cursor cursor = getActivity().getContentResolver().query(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         projection,
@@ -306,6 +305,8 @@ public class PostFragment extends Fragment {
                         selectionArgs,
                         null
                 );
+                String queryUri = "query URI " + MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                Toast.makeText(getActivity(), queryUri, Toast.LENGTH_LONG).show();
                 cursor.moveToFirst();
                 int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 String filePath = cursor.getString(columnIndex);
@@ -328,7 +329,7 @@ public class PostFragment extends Fragment {
                 Toast.makeText(getActivity(), "Cannot Display Image - Unable to flush or close stream", Toast.LENGTH_SHORT).show();
                 Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
             } catch (Exception exception) {
-                Toast.makeText(getActivity(), "Cannot Display Image", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Cannot Display Image " + exception, Toast.LENGTH_SHORT).show();
                 Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
             }
         }
