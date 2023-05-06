@@ -172,7 +172,53 @@ public class PostFragment extends Fragment {
             chooseImageFragment.setTargetFragment(PostFragment.this, REQUEST_CHOOSE_IMAGE_OPTION);
             chooseImageFragment.show(getFragmentManager(), DIALOG_CHOOSE_IMAGE);
         });
-        updatePhotoView();
+
+        Uri uri = mPost.getUri();
+        if (!Objects.equals(uri.toString(), "")) {
+            try {
+                mPost.setUri(uri);
+                String documentId = DocumentsContract.getDocumentId(uri);
+                String[] parts = documentId.split(":");
+                String id = parts[1];
+
+                String[] projection = { MediaStore.Images.Media.DATA };
+                String selection = MediaStore.Images.Media._ID + "=?";
+                String[] selectionArgs = { id };
+                Cursor cursor = getActivity().getContentResolver().query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                String filePath = cursor.getString(columnIndex);
+                cursor.close();
+
+                Bitmap scaledBitmap = PictureUtils.getScaledBitmap(
+                        filePath,
+                        requireActivity()
+                );
+                mPhotoView.setImageBitmap(scaledBitmap);
+    //            FileOutputStream fileOutputStream = new FileOutputStream(this.mPhotoFile);
+    //            Bitmap.CompressFormat compressFormat = getCompressFormat(uri);
+    //            scaledBitmap.compress(compressFormat, 100, fileOutputStream);
+    //            fileOutputStream.flush();
+    //            fileOutputStream.close();
+    //        } catch (FileNotFoundException exception) {
+    //            Toast.makeText(getActivity(), "Cannot Display Image - File not found", Toast.LENGTH_SHORT).show();
+    //            Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
+    //        } catch (IOException exception) {
+    //            Toast.makeText(getActivity(), "Cannot Display Image - Unable to flush or close stream", Toast.LENGTH_SHORT).show();
+    //            Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
+    //        }
+            } catch (Exception exception) {
+                Toast.makeText(getActivity(), "Cannot Display Image", Toast.LENGTH_SHORT).show();
+                Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
+            }
+        }
+//        updatePhotoView();
         return view;
     }
 
@@ -228,6 +274,7 @@ public class PostFragment extends Fragment {
                     mPhotoFile
             );
 
+            mPost.setUri(uri);
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updatePhotoView();
         }
@@ -239,6 +286,7 @@ public class PostFragment extends Fragment {
 
             try {
                 Uri uri = data.getData();
+                mPost.setUri(uri);
                 String documentId = DocumentsContract.getDocumentId(uri);
                 String[] parts = documentId.split(":");
                 String id = parts[1];
@@ -253,6 +301,7 @@ public class PostFragment extends Fragment {
                         selectionArgs,
                         null
                 );
+                cursor.moveToFirst();
                 int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 String filePath = cursor.getString(columnIndex);
                 cursor.close();
