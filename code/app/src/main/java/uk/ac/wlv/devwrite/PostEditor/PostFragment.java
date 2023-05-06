@@ -7,19 +7,24 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.FileUtils;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -28,6 +33,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.content.MimeTypeFilter;
+import androidx.core.graphics.BitmapCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -37,6 +44,8 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +64,7 @@ public class PostFragment extends Fragment {
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
     private static final int PERMISSION_READ_EXTERNAL_STORAGE = 2;
     private static final int REQUEST_PHOTO_FROM_CAMERA = 3;
+    private static final int REQUEST_PHOTO_FROM_GALLERY = 4;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -108,15 +118,6 @@ public class PostFragment extends Fragment {
         mPost = DatabaseManager.get(getActivity()).getPost(postId);
         mPhotoFile = DatabaseManager.get(getActivity()).getPhotoFile(mPost);
 
-        if (getActivity().getApplicationContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    getActivity(),
-                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSION_READ_EXTERNAL_STORAGE
-            );
-        }
-
         setHasOptionsMenu(true);
     }
 
@@ -166,11 +167,7 @@ public class PostFragment extends Fragment {
         mPhotoView = view.findViewById(R.id.post_photo);
 
         mChooseImageButton = view.findViewById(R.id.choose_image_button);
-        PackageManager packageManager = requireActivity().getPackageManager();
-        captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        boolean canTakePhoto = mPhotoFile != null &&
-                captureImage.resolveActivity(packageManager) != null;
-        mChooseImageButton.setEnabled(canTakePhoto);
+
         mChooseImageButton.setOnClickListener(event -> {
             DialogFragment chooseImageFragment = ChooseImageDialogFragment.newInstance();
             chooseImageFragment.setTargetFragment(PostFragment.this, REQUEST_CHOOSE_IMAGE_OPTION);
@@ -198,6 +195,7 @@ public class PostFragment extends Fragment {
                         mPhotoFile
                 );
 
+                captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 List<ResolveInfo> cameraActivities = getActivity()
                         .getPackageManager()
@@ -213,11 +211,20 @@ public class PostFragment extends Fragment {
 
                 startActivityForResult(captureImage, REQUEST_PHOTO_FROM_CAMERA);
             }
+
+            if (Objects.equals(selectedItem, getString(R.string.select_from_gallery))) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(
+                        Intent.createChooser(intent, "Select Photo"),
+                        REQUEST_PHOTO_FROM_GALLERY
+                );
+            }
         }
 
         if (requestCode == REQUEST_PHOTO_FROM_CAMERA) {
             Uri uri = FileProvider.getUriForFile(
-                    getActivity(),
+                    requireActivity(),
                     "uk.ac.wlv.devwrite.fileprovider",
                     mPhotoFile
             );
@@ -225,6 +232,82 @@ public class PostFragment extends Fragment {
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updatePhotoView();
         }
+
+        if (requestCode == REQUEST_PHOTO_FROM_GALLERY) {
+            if (data == null) {
+                return;
+            }
+
+            try {
+                Uri uri = data.getData();
+                String documentId = DocumentsContract.getDocumentId(uri);
+                String[] parts = documentId.split(":");
+                String id = parts[1];
+
+                String[] projection = { MediaStore.Images.Media.DATA };
+                String selection = MediaStore.Images.Media._ID + "=?";
+                String[] selectionArgs = { id };
+                Cursor cursor = getActivity().getContentResolver().query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//                cursor.moveToFirst();
+                if (cursor.moveToFirst() == false) {
+                    System.out.println("WAAAAAAAAAAAAH");
+                }
+                String filePath = cursor.getString(columnIndex);
+                cursor.close();
+
+                Bitmap scaledBitmap = PictureUtils.getScaledBitmap(
+                        filePath,
+                        requireActivity()
+                );
+                mPhotoView.setImageBitmap(scaledBitmap);
+                FileOutputStream fileOutputStream = new FileOutputStream(this.mPhotoFile);
+                Bitmap.CompressFormat compressFormat = getCompressFormat(uri);
+                scaledBitmap.compress(compressFormat, 100, fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+//                updatePhotoView();
+            } catch (FileNotFoundException exception) {
+                Toast.makeText(getActivity(), "Cannot Display Image - File not found", Toast.LENGTH_SHORT).show();
+                Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
+            } catch (IOException exception) {
+                Toast.makeText(getActivity(), "Cannot Display Image - Unable to flush or close stream", Toast.LENGTH_SHORT).show();
+                Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
+            } catch (Exception exception) {
+                Toast.makeText(getActivity(), "Cannot Display Image", Toast.LENGTH_SHORT).show();
+                Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
+            }
+        }
+    }
+
+    private Bitmap.CompressFormat getCompressFormat(Uri uri) {
+        String mimeType = null;
+
+        if (Objects.equals(ContentResolver.SCHEME_CONTENT, uri.getScheme())) {
+            ContentResolver contentResolver = getActivity()
+                    .getApplicationContext()
+                    .getContentResolver();
+            mimeType = contentResolver.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+        }
+
+        if (Objects.equals(mimeType, "image/jpeg")) {
+            return Bitmap.CompressFormat.JPEG;
+        }
+
+        if (Objects.equals(mimeType, "image/png")) {
+            return Bitmap.CompressFormat.PNG;
+        }
+
+        return null;
     }
 
     private void updatePhotoView() {
