@@ -95,11 +95,16 @@ public class PostFragment extends Fragment {
         }
 
         if (item.getItemId() == R.id.option_publish) {
-            new Sharer().sharePostToLinkedIn(this, mPost.getContent());
+            new Sharer().sharePostToLinkedIn(this, mPost.getContent(), mPost.getUri());
         }
 
         if (item.getItemId() == R.id.option_share_via_email) {
-            new Sharer().sharePostToEmail(this, mPost.getTitle(), mPost.getContent());
+            new Sharer().sharePostToEmail(
+                    this,
+                    mPost.getTitle(),
+                    mPost.getContent(),
+                    mPost.getUri()
+            );
         }
 
         if (item.getItemId() == R.id.option_delete) {
