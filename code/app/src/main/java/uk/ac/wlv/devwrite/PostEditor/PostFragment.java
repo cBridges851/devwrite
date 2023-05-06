@@ -62,9 +62,8 @@ public class PostFragment extends Fragment {
     private static final String ARG_POST_ID = "post_id";
     private static final String DIALOG_CHOOSE_IMAGE = "DialogChooseImage";
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
-    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 2;
-    private static final int REQUEST_PHOTO_FROM_CAMERA = 3;
-    private static final int REQUEST_PHOTO_FROM_GALLERY = 4;
+    private static final int REQUEST_PHOTO_FROM_CAMERA = 2;
+    private static final int REQUEST_PHOTO_FROM_GALLERY = 3;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -255,10 +254,6 @@ public class PostFragment extends Fragment {
                         null
                 );
                 int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//                cursor.moveToFirst();
-                if (cursor.moveToFirst() == false) {
-                    System.out.println("WAAAAAAAAAAAAH");
-                }
                 String filePath = cursor.getString(columnIndex);
                 cursor.close();
 
@@ -272,7 +267,6 @@ public class PostFragment extends Fragment {
                 scaledBitmap.compress(compressFormat, 100, fileOutputStream);
                 fileOutputStream.flush();
                 fileOutputStream.close();
-//                updatePhotoView();
             } catch (FileNotFoundException exception) {
                 Toast.makeText(getActivity(), "Cannot Display Image - File not found", Toast.LENGTH_SHORT).show();
                 Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
@@ -287,7 +281,7 @@ public class PostFragment extends Fragment {
     }
 
     private Bitmap.CompressFormat getCompressFormat(Uri uri) {
-        String mimeType = null;
+        String mimeType;
 
         if (Objects.equals(ContentResolver.SCHEME_CONTENT, uri.getScheme())) {
             ContentResolver contentResolver = getActivity()
