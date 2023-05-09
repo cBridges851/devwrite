@@ -259,7 +259,7 @@ public class PostFragment extends Fragment {
                             PERMISSION_READ_EXTERNAL_STORAGE
                     );
                 }
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("image/*");
                 startActivityForResult(
                         Intent.createChooser(intent, "Select Photo"),
@@ -287,6 +287,7 @@ public class PostFragment extends Fragment {
 
             try {
                 Uri uri = data.getData();
+                getActivity().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mPost.setUri(uri);
                 String documentId = DocumentsContract.getDocumentId(uri);
                 String[] parts = documentId.split(":");
