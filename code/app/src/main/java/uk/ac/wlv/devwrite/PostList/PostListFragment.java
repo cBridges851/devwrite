@@ -40,9 +40,6 @@ public class PostListFragment extends Fragment {
     private PostAdapter mPostAdapter;
     private List<Post> posts;
     private MaterialButton mCreatePostButton;
-    private boolean multiSelectEnabled = false;
-    private List<PostHolder> allPostHolders;
-    private List<PostHolder> selectedPosts;
     private Menu mMenu;
     private List<MenuItem> multiSelectMenuItems;
 
@@ -82,68 +79,6 @@ public class PostListFragment extends Fragment {
             });
         }
 
-        if (item.getItemId() == R.id.option_select_all) {
-            if (selectedPosts.size() != allPostHolders.size()) {
-                for (PostHolder postHolder : allPostHolders) {
-                    postHolder.isSelected = true;
-                    multiSelectEnabled = true;
-                    int color = MaterialColors.getColor(
-                            requireView(),
-                            com.google.android.material.R.attr.colorSurfaceVariant);
-                    postHolder.itemView.setBackgroundColor(color);
-                    postHolder.mCheckBox.setVisibility(View.VISIBLE);
-                    postHolder.mCheckBox.setChecked(true);
-
-                    if (!selectedPosts.contains(postHolder)) {
-                        selectedPosts.add(postHolder);
-                    }
-                }
-
-                item.setTitle(R.string.deselect_all);
-
-                for (MenuItem menuItem : multiSelectMenuItems) {
-                    menuItem.setVisible(true);
-                }
-            } else {
-                for (PostHolder postHolder : allPostHolders) {
-                    postHolder.isSelected = false;
-                    multiSelectEnabled = false;
-                    postHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
-                    postHolder.mCheckBox.setVisibility(View.GONE);
-
-                    selectedPosts.remove(postHolder);
-                }
-
-                for (MenuItem menuItem : multiSelectMenuItems) {
-                    menuItem.setVisible(false);
-                }
-
-                item.setTitle(R.string.select_all);
-
-            }
-        }
-
-        if (item.getItemId() == R.id.option_delete) {
-            List<PostHolder> selectedPostsTemp = new ArrayList<>(selectedPosts);
-            Collections.copy(selectedPostsTemp, selectedPosts);
-
-            for (PostHolder postHolder : selectedPosts) {
-                postHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
-                postHolder.mCheckBox.setVisibility(View.GONE);
-                DatabaseManager.get(getActivity()).deletePost(postHolder.mPost);
-                posts = DatabaseManager.get(getActivity()).getPosts();
-                allPostHolders.remove(postHolder);
-                selectedPostsTemp.remove(postHolder);
-
-                if (selectedPostsTemp.isEmpty()) {
-                    multiSelectEnabled = false;
-                }
-
-                updateUI(posts);
-            }
-
-            Collections.copy(selectedPosts, selectedPostsTemp);
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -152,8 +87,6 @@ public class PostListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         posts = DatabaseManager.get(getActivity()).getPosts();
-        allPostHolders = new ArrayList<>();
-        selectedPosts = new ArrayList<>();
         multiSelectMenuItems = new ArrayList<>();
         setHasOptionsMenu(true);
     }
@@ -182,9 +115,6 @@ public class PostListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         posts = DatabaseManager.get(getActivity()).getPosts();
-        selectedPosts = new ArrayList<>();
-        allPostHolders = new ArrayList<>();
-        multiSelectEnabled = false;
 
         for (MenuItem menuItem : multiSelectMenuItems) {
             menuItem.setVisible(false);
@@ -206,79 +136,15 @@ public class PostListFragment extends Fragment {
     private class PostHolder extends RecyclerView.ViewHolder {
         public MaterialTextView mTitleTextView;
         public MaterialTextView mContentTextView;
-        public MaterialCheckBox mCheckBox;
         public Post mPost;
-        public boolean isSelected;
 
         public PostHolder(View itemView) {
             super(itemView);
             mTitleTextView = itemView.findViewById(R.id.list_item_post_title_text_view);
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
-            mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
-            mCheckBox.setVisibility(View.GONE);
-            mCheckBox.setOnCheckedChangeListener((compoundButton, b) -> toggleSelect());
-            isSelected = false;
-
-            itemView.setOnClickListener(event -> {
-                if (!multiSelectEnabled) {
-                    Intent intent = PostActivity.newIntent(getActivity(), mPost.getId());
-                    startActivity(intent);
-                    return;
-                }
-
-                toggleSelect();
-            });
-
-            itemView.setOnLongClickListener(event -> {
-                if (!multiSelectEnabled) {
-                    multiSelectEnabled = true;
-                } else {
-                    return false;
-                }
-
-                toggleSelect();
-
-                return true;
-            });
-
-
-        }
-
-        private void toggleSelect() {
-            if (isSelected) {
-                isSelected = false;
-                itemView.setBackgroundColor(Color.TRANSPARENT);
-                mCheckBox.setVisibility(View.GONE);
-                selectedPosts.remove(this);
-                MenuItem item = mMenu.findItem(R.id.option_select_all);
-                item.setTitle(R.string.select_all);
-
-                if (selectedPosts.isEmpty()) {
-                    multiSelectEnabled = false;
-
-                    for (MenuItem menuItem : multiSelectMenuItems) {
-                        menuItem.setVisible(false);
-                    }
-                }
-
-            } else {
-                selectedPosts.add(this);
-                isSelected = true;
-                int color = MaterialColors.getColor(
-                        requireView(),
-                        com.google.android.material.R.attr.colorSurfaceVariant);
-                itemView.setBackgroundColor(color);
-                mCheckBox.setVisibility(View.VISIBLE);
-                mCheckBox.setChecked(true);
-
-                for (MenuItem menuItem : multiSelectMenuItems) {
-                    menuItem.setVisible(true);
-                }
-            }
         }
 
         public void bindPost(Post post) {
-            allPostHolders.add(this);
             mPost = post;
             String title = mPost.getTitle();
 
