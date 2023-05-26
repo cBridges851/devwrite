@@ -6,15 +6,18 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
 public class Sharer {
     public void sharePostToLinkedIn(Fragment source, String content, Uri fileUri) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setPackage("com.linkedin.android");
-        shareIntent.setType("text/*");
-        shareIntent.setType("image/*");
+        shareIntent.setType("*/*");
         shareIntent.putExtra(Intent.EXTRA_TEXT, content);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-        
+        if (Objects.equals(fileUri.toString(), "")) {
+            shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        }
+
         try {
             source.startActivity(shareIntent);
         } catch (Exception exception) {
