@@ -58,6 +58,7 @@ public class PostListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_item_search) {
+            mPostAdapter.deselectAll();
             androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) item.getActionView();
 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
