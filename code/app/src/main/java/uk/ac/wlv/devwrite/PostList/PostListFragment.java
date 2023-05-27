@@ -49,6 +49,7 @@ public class PostListFragment extends Fragment {
         inflater.inflate(R.menu.fragment_post_list, menu);
 
         mMenu = menu;
+        multiSelectMenuItems.add(mMenu.findItem(R.id.option_deselect_all));
         multiSelectMenuItems.add(mMenu.findItem(R.id.option_delete));
 
         for (MenuItem menuItem : multiSelectMenuItems) {
@@ -81,6 +82,11 @@ public class PostListFragment extends Fragment {
 
         if (item.getItemId() == R.id.option_select_all) {
             mPostAdapter.selectAll();
+            item.setVisible(false);
+
+            for (MenuItem multiSelectMenuItem: multiSelectMenuItems) {
+                multiSelectMenuItem.setVisible(true);
+            }
         }
 
         return super.onOptionsItemSelected(item);
