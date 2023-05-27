@@ -136,12 +136,14 @@ public class PostListFragment extends Fragment {
     private class PostHolder extends RecyclerView.ViewHolder {
         public MaterialTextView mTitleTextView;
         public MaterialTextView mContentTextView;
+        public MaterialCheckBox mCheckBox;
         public Post mPost;
 
         public PostHolder(View itemView) {
             super(itemView);
             mTitleTextView = itemView.findViewById(R.id.list_item_post_title_text_view);
             mContentTextView = itemView.findViewById(R.id.list_item_post_content_text_view);
+            mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
         }
 
         public void bindPost(Post post) {
@@ -161,6 +163,7 @@ public class PostListFragment extends Fragment {
             }
 
             mContentTextView.setText(content);
+            mCheckBox.setVisibility(View.GONE);
         }
     }
 
@@ -187,6 +190,15 @@ public class PostListFragment extends Fragment {
         public void onBindViewHolder(@NonNull PostHolder holder, int position) {
             Post post = mPosts.get(position);
             holder.bindPost(post);
+            holder.itemView.setOnClickListener(listener -> {
+                Intent intent = PostActivity.newIntent(getActivity(), post.getId());
+                startActivity(intent);
+//                setPostAsSelected(holder);
+            });
+        }
+
+        private void setPostAsSelected(PostHolder holder) {
+
         }
 
         @Override
