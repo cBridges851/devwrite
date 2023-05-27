@@ -24,10 +24,13 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import uk.ac.wlv.devwrite.DatabaseManager;
 import uk.ac.wlv.devwrite.Models.Post;
@@ -86,6 +89,16 @@ public class PostListFragment extends Fragment {
 
             for (MenuItem multiSelectMenuItem: multiSelectMenuItems) {
                 multiSelectMenuItem.setVisible(true);
+            }
+        }
+
+        if (item.getItemId() == R.id.option_deselect_all) {
+            mPostAdapter.deselectAll();
+            MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
+            selectAllMenuItem.setVisible(true);
+
+            for (MenuItem multiSelectMenuItem: multiSelectMenuItems) {
+                multiSelectMenuItem.setVisible(false);
             }
         }
 
@@ -236,6 +249,15 @@ public class PostListFragment extends Fragment {
             for (int i = 0; i < mPosts.size(); i++) {
                 PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(mPostRecyclerView.getChildAt(i));
                 setPostAsSelected(holder);
+            }
+        }
+
+        public void deselectAll() {
+            isMultiSelectEnabled = false;
+
+            for (int i = 0; i < mPosts.size(); i++) {
+                PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(mPostRecyclerView.getChildAt(i));
+                setPostAsDeselected(holder);
             }
         }
 
