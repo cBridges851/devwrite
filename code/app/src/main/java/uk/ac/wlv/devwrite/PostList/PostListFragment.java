@@ -91,6 +91,10 @@ public class PostListFragment extends Fragment {
             mMenu.findItem(R.id.option_deselect_all).setVisible(false);
             mMenu.findItem(R.id.option_delete).setVisible(false);
         }
+        
+        if (item.getItemId() == R.id.option_delete) {
+            mPostAdapter.deleteSelected();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -110,6 +114,8 @@ public class PostListFragment extends Fragment {
         mCreatePostButton = view.findViewById(R.id.create_post_button);
         mCreatePostButton.setOnClickListener(buttonView -> {
             Post post = new Post();
+            post.setTitle("");
+            post.setContent("");
             DatabaseManager.get(getActivity()).addPost(post);
             Intent intent = PostActivity.newIntent(getActivity(), post.getId());
             startActivity(intent);
@@ -204,6 +210,7 @@ public class PostListFragment extends Fragment {
             holder.itemView.setOnLongClickListener(listener -> {
                 if (!isMultiSelectEnabled) {
                     isMultiSelectEnabled = true;
+                    mMenu.findItem(R.id.option_delete).setVisible(true);
                     setPostAsSelected(holder);
                 }
 
@@ -226,6 +233,7 @@ public class PostListFragment extends Fragment {
 
                 if (!areAnyPostsSelected()) {
                     isMultiSelectEnabled = false;
+                    mMenu.findItem(R.id.option_delete).setVisible(false);
                 }
 
                 MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
@@ -243,6 +251,7 @@ public class PostListFragment extends Fragment {
 
         public void selectAll() {
             isMultiSelectEnabled = true;
+
             for (int i = 0; i < mPosts.size(); i++) {
                 PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(mPostRecyclerView.getChildAt(i));
                 setPostAsSelected(holder);
@@ -290,6 +299,16 @@ public class PostListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mPosts.size();
+        }
+
+        public void deleteSelected() {
+            for (Post post : mSelectedPosts) {
+                DatabaseManager.get(getActivity()).deletePost(post);
+                mPosts.remove(post);
+            }
+
+            mSelectedPosts = new ArrayList<>();
+            notifyDataSetChanged();
         }
     }
 }
