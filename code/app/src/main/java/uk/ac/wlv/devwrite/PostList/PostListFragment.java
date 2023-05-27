@@ -163,15 +163,18 @@ public class PostListFragment extends Fragment {
             }
 
             mContentTextView.setText(content);
+            mCheckBox.setChecked(true);
             mCheckBox.setVisibility(View.GONE);
         }
     }
 
     private class PostAdapter extends RecyclerView.Adapter<PostHolder> {
         private List<Post> mPosts;
+        private boolean isMultiSelectEnabled;
 
         public PostAdapter(List<Post> posts) {
             mPosts = posts;
+            isMultiSelectEnabled = false;
         }
 
         public void setPosts(List<Post> posts) {
@@ -190,15 +193,59 @@ public class PostListFragment extends Fragment {
         public void onBindViewHolder(@NonNull PostHolder holder, int position) {
             Post post = mPosts.get(position);
             holder.bindPost(post);
+            holder.itemView.setOnLongClickListener(listener -> {
+                if (!isMultiSelectEnabled) {
+                    isMultiSelectEnabled = true;
+                    setPostAsSelected(holder);
+                }
+
+                return true;
+            });
+
             holder.itemView.setOnClickListener(listener -> {
-                Intent intent = PostActivity.newIntent(getActivity(), post.getId());
-                startActivity(intent);
-//                setPostAsSelected(holder);
+                if (!isMultiSelectEnabled) {
+                    Intent intent = PostActivity.newIntent(getActivity(), post.getId());
+                    startActivity(intent);
+                }
+
+                if (isMultiSelectEnabled) {
+                    if (!post.isSelected()) {
+                        setPostAsSelected(holder);
+                    } else {
+                        setPostAsDeselected(holder);
+                    }
+                }
+
+                if (!areAnyPostsSelected()) {
+                    isMultiSelectEnabled = false;
+                }
             });
         }
 
-        private void setPostAsSelected(PostHolder holder) {
+        private boolean areAnyPostsSelected() {
+            for (Post post : mPosts) {
+                if (post.isSelected()) {
+                    return true;
+                }
+            }
 
+            return false;
+        }
+
+        private void setPostAsSelected(PostHolder holder) {
+            int color = MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorSurfaceVariant
+            );
+            holder.itemView.setBackgroundColor(color);
+            holder.mCheckBox.setVisibility(View.VISIBLE);
+            holder.mPost.setSelected(true);
+        }
+
+        private void setPostAsDeselected(PostHolder holder) {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+            holder.mCheckBox.setVisibility(View.GONE);
+            holder.mPost.setSelected(false);
         }
 
         @Override

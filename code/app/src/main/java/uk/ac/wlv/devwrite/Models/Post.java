@@ -9,6 +9,7 @@ public class Post {
     private String mTitle;
     private String mContent;
     private Uri mUri = Uri.EMPTY;
+    private boolean mIsSelected = false;
 
     public Post() {
         this(UUID.randomUUID());
@@ -52,5 +53,13 @@ public class Post {
 
     public void setUri(Uri uri) {
         mUri = uri;
+    }
+
+    public boolean isSelected() {
+        return mIsSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        mIsSelected = selected;
     }
 }
