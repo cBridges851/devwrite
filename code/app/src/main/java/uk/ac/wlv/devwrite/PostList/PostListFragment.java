@@ -44,7 +44,6 @@ public class PostListFragment extends Fragment {
     private List<Post> posts;
     private MaterialButton mCreatePostButton;
     private Menu mMenu;
-    private List<MenuItem> multiSelectMenuItems;
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -52,13 +51,8 @@ public class PostListFragment extends Fragment {
         inflater.inflate(R.menu.fragment_post_list, menu);
 
         mMenu = menu;
-        multiSelectMenuItems.add(mMenu.findItem(R.id.option_deselect_all));
-        multiSelectMenuItems.add(mMenu.findItem(R.id.option_delete));
-
-        for (MenuItem menuItem : multiSelectMenuItems) {
-            menuItem.setVisible(false);
-        }
-
+        mMenu.findItem(R.id.option_deselect_all).setVisible(false);
+        mMenu.findItem(R.id.option_delete).setVisible(false);
     }
 
     @Override
@@ -86,20 +80,16 @@ public class PostListFragment extends Fragment {
         if (item.getItemId() == R.id.option_select_all) {
             mPostAdapter.selectAll();
             item.setVisible(false);
-
-            for (MenuItem multiSelectMenuItem: multiSelectMenuItems) {
-                multiSelectMenuItem.setVisible(true);
-            }
+            mMenu.findItem(R.id.option_deselect_all).setVisible(true);
+            mMenu.findItem(R.id.option_delete).setVisible(true);
         }
 
         if (item.getItemId() == R.id.option_deselect_all) {
             mPostAdapter.deselectAll();
             MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
             selectAllMenuItem.setVisible(true);
-
-            for (MenuItem multiSelectMenuItem: multiSelectMenuItems) {
-                multiSelectMenuItem.setVisible(false);
-            }
+            mMenu.findItem(R.id.option_deselect_all).setVisible(false);
+            mMenu.findItem(R.id.option_delete).setVisible(false);
         }
 
         return super.onOptionsItemSelected(item);
@@ -109,7 +99,6 @@ public class PostListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         posts = DatabaseManager.get(getActivity()).getPosts();
-        multiSelectMenuItems = new ArrayList<>();
         setHasOptionsMenu(true);
     }
 
@@ -137,11 +126,6 @@ public class PostListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         posts = DatabaseManager.get(getActivity()).getPosts();
-
-        for (MenuItem menuItem : multiSelectMenuItems) {
-            menuItem.setVisible(false);
-        }
-
         updateUI(posts);
     }
 
@@ -192,11 +176,13 @@ public class PostListFragment extends Fragment {
 
     private class PostAdapter extends RecyclerView.Adapter<PostHolder> {
         private List<Post> mPosts;
+        private List<Post> mSelectedPosts;
         private boolean isMultiSelectEnabled;
 
         public PostAdapter(List<Post> posts) {
             mPosts = posts;
             isMultiSelectEnabled = false;
+            mSelectedPosts = new ArrayList<>();
         }
 
         public void setPosts(List<Post> posts) {
@@ -231,7 +217,7 @@ public class PostListFragment extends Fragment {
                 }
 
                 if (isMultiSelectEnabled) {
-                    if (!post.isSelected()) {
+                    if (!mSelectedPosts.contains(post)) {
                         setPostAsSelected(holder);
                     } else {
                         setPostAsDeselected(holder);
@@ -240,6 +226,17 @@ public class PostListFragment extends Fragment {
 
                 if (!areAnyPostsSelected()) {
                     isMultiSelectEnabled = false;
+                }
+
+                MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
+                MenuItem deselectAllMenuItem = mMenu.findItem(R.id.option_deselect_all);
+
+                if (Objects.equals(mPosts.size(), mSelectedPosts.size())) {
+                    selectAllMenuItem.setVisible(false);
+                    deselectAllMenuItem.setVisible(true);
+                } else {
+                    selectAllMenuItem.setVisible(true);
+                    deselectAllMenuItem.setVisible(false);
                 }
             });
         }
@@ -263,7 +260,7 @@ public class PostListFragment extends Fragment {
 
         private boolean areAnyPostsSelected() {
             for (Post post : mPosts) {
-                if (post.isSelected()) {
+                if (mSelectedPosts.contains(post)) {
                     return true;
                 }
             }
@@ -278,13 +275,16 @@ public class PostListFragment extends Fragment {
             );
             holder.itemView.setBackgroundColor(color);
             holder.mCheckBox.setVisibility(View.VISIBLE);
-            holder.mPost.setSelected(true);
+
+            if (!mSelectedPosts.contains(holder.mPost)) {
+                mSelectedPosts.add(holder.mPost);
+            }
         }
 
         private void setPostAsDeselected(PostHolder holder) {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
             holder.mCheckBox.setVisibility(View.GONE);
-            holder.mPost.setSelected(false);
+            mSelectedPosts.remove(holder.mPost);
         }
 
         @Override
