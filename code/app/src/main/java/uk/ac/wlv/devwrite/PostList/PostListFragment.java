@@ -79,6 +79,9 @@ public class PostListFragment extends Fragment {
             });
         }
 
+        if (item.getItemId() == R.id.option_select_all) {
+            mPostAdapter.selectAll();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -220,6 +223,14 @@ public class PostListFragment extends Fragment {
                     isMultiSelectEnabled = false;
                 }
             });
+        }
+
+        public void selectAll() {
+            isMultiSelectEnabled = true;
+            for (int i = 0; i < mPosts.size(); i++) {
+                PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(mPostRecyclerView.getChildAt(i));
+                setPostAsSelected(holder);
+            }
         }
 
         private boolean areAnyPostsSelected() {
