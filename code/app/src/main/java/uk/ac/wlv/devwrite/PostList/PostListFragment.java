@@ -3,6 +3,7 @@ package uk.ac.wlv.devwrite.PostList;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,6 +52,7 @@ public class PostListFragment extends Fragment {
         inflater.inflate(R.menu.fragment_post_list, menu);
 
         mMenu = menu;
+        mMenu.findItem(R.id.option_select_all).setVisible(true);
         mMenu.findItem(R.id.option_deselect_all).setVisible(false);
         mMenu.findItem(R.id.option_delete).setVisible(false);
     }
@@ -59,6 +61,9 @@ public class PostListFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_item_search) {
             mPostAdapter.deselectAll();
+            mMenu.findItem(R.id.option_select_all).setVisible(false);
+            mMenu.findItem(R.id.option_deselect_all).setVisible(false);
+            mMenu.findItem(R.id.option_delete).setVisible(false);
             androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) item.getActionView();
 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -74,6 +79,12 @@ public class PostListFragment extends Fragment {
                     List<Post> results = new SearchHelper().getResults(newText, posts);
                     updateUI(results);
                     return false;
+                }
+            });
+
+            searchView.setOnQueryTextFocusChangeListener((listener, hasFocus) -> {
+                if (!hasFocus) {
+                    mMenu.findItem(R.id.option_select_all).setVisible(true);
                 }
             });
         }
