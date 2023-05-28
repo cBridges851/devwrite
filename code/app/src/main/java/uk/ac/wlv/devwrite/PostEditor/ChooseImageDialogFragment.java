@@ -1,13 +1,9 @@
-package uk.ac.wlv.devwrite;
+package uk.ac.wlv.devwrite.PostEditor;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +11,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.util.Objects;
+import uk.ac.wlv.devwrite.R;
 
 public class ChooseImageDialogFragment extends DialogFragment {
     public final static String EXTRA_OPTION = "uk.ac.wlv.devwrite.option";

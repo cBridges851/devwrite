@@ -3,15 +3,12 @@ package uk.ac.wlv.devwrite.PostList;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,15 +22,11 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
-import uk.ac.wlv.devwrite.DatabaseManager;
+import uk.ac.wlv.devwrite.database.DatabaseManager;
 import uk.ac.wlv.devwrite.Models.Post;
 import uk.ac.wlv.devwrite.PostEditor.PostActivity;
 import uk.ac.wlv.devwrite.R;

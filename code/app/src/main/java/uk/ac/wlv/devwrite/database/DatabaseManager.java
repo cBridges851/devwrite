@@ -1,4 +1,4 @@
-package uk.ac.wlv.devwrite;
+package uk.ac.wlv.devwrite.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import uk.ac.wlv.devwrite.Models.Post;
-import uk.ac.wlv.devwrite.database.PostBaseHelper;
-import uk.ac.wlv.devwrite.database.PostCursorWrapper;
-import uk.ac.wlv.devwrite.database.PostDbSchema;
 
 public class DatabaseManager {
     private static DatabaseManager sDatabaseManager;
