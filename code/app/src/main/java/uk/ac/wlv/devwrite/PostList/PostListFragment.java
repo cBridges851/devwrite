@@ -182,6 +182,11 @@ public class PostListFragment extends Fragment {
             mContentTextView.setText(content);
             mCheckBox.setChecked(true);
             mCheckBox.setVisibility(View.GONE);
+
+            mCheckBox.setOnCheckedChangeListener((listener, value) -> {
+                mCheckBox.setChecked(true);
+                mPostAdapter.handlePostClick(this);
+            });
         }
     }
 
@@ -223,35 +228,44 @@ public class PostListFragment extends Fragment {
             });
 
             holder.itemView.setOnClickListener(listener -> {
-                if (!isMultiSelectEnabled) {
-                    Intent intent = PostActivity.newIntent(getActivity(), post.getId());
-                    startActivity(intent);
-                }
-
-                if (isMultiSelectEnabled) {
-                    if (!mSelectedPosts.contains(post)) {
-                        setPostAsSelected(holder);
-                    } else {
-                        setPostAsDeselected(holder);
-                    }
-                }
-
-                if (!areAnyPostsSelected()) {
-                    isMultiSelectEnabled = false;
-                    mMenu.findItem(R.id.option_delete).setVisible(false);
-                }
-
-                MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
-                MenuItem deselectAllMenuItem = mMenu.findItem(R.id.option_deselect_all);
-
-                if (Objects.equals(mPosts.size(), mSelectedPosts.size())) {
-                    selectAllMenuItem.setVisible(false);
-                    deselectAllMenuItem.setVisible(true);
-                } else {
-                    selectAllMenuItem.setVisible(true);
-                    deselectAllMenuItem.setVisible(false);
-                }
+                handlePostClick(holder);
             });
+        }
+
+        public void handlePostClick(PostHolder holder) {
+            Post post = holder.mPost;
+            if (!isMultiSelectEnabled) {
+                Intent intent = PostActivity.newIntent(getActivity(), post.getId());
+                startActivity(intent);
+            }
+
+            if (isMultiSelectEnabled) {
+                if (!mSelectedPosts.contains(post)) {
+                    setPostAsSelected(holder);
+                } else {
+                    setPostAsDeselected(holder);
+                }
+            }
+
+            if (!areAnyPostsSelected()) {
+                isMultiSelectEnabled = false;
+                mMenu.findItem(R.id.option_delete).setVisible(false);
+            }
+
+            MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
+            MenuItem deselectAllMenuItem = mMenu.findItem(R.id.option_deselect_all);
+
+            if (Objects.equals(mPosts.size(), mSelectedPosts.size())) {
+                selectAllMenuItem.setVisible(false);
+                deselectAllMenuItem.setVisible(true);
+            } else {
+                selectAllMenuItem.setVisible(true);
+                deselectAllMenuItem.setVisible(false);
+            }
+        }
+
+        public void uncheckBox(PostHolder holder) {
+            setPostAsDeselected(holder);
         }
 
         public void selectAll() {
