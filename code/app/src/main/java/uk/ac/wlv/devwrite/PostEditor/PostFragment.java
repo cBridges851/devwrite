@@ -68,7 +68,6 @@ public class PostFragment extends Fragment {
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
-    private MaterialToolbar mToolbar;
     private MaterialButton mChooseImageButton;
     private ImageView mPhotoView;
     private File mPhotoFile;
