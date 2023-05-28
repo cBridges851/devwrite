@@ -32,7 +32,9 @@ public class Sharer {
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, title);
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
-        emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        if (Objects.equals(fileUri.toString(), "")) {
+            emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        }
         emailIntent.setSelector(selectorIntent);
 
         source.startActivity(Intent.createChooser(emailIntent, "Select Email App"));
