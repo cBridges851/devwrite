@@ -1,0 +1,52 @@
+@startuml
+' Editor Component
+
+    class DatabaseManager {
+        - sDatabaseManager: DatabaseManager
+        - mContext: Context
+        - mDatabase: SQLiteDatabase
+        + <<DatabaseManager>> get(Context context)
+        - <<ContentValues>> getContentValues(Post post)
+        + <<List<Post>>> getPosts()
+        - <<PostCursorWrapper>> queryPosts(String whereClause, String[] whereArgs)
+        + <<void>> addPost(Post post)
+        + <<Post>> getPost(UUID id)
+        + <<void>> updatePost(Post post)
+        + <<void>> deletePost(Post post)
+        + <<File>> getPhotoFile(Post post)
+    }
+
+    class PostBaseHelper {
+        - VERSION: Integer
+        - DATABASE_NAME: String
+        + <<void>> onCreate(SQLiteDatabase sqLiteDatabase)
+        + <<void>> onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1)
+    }
+    
+    class PostCursorWrapper {
+        + <<Post>> getPost()
+    }
+     
+    class PostDbSchema {
+        
+    }
+
+    class PostTable {
+        + NAME: String
+    }
+
+    class Cols {
+        + UUID: String
+        + TITLE: String
+        + CONTENT: String
+        + URI: String
+    }
+
+   DatabaseManager --> PostCursorWrapper
+   DatabaseManager o-- PostBaseHelper
+   DatabaseManager --> PostDbSchema
+   PostBaseHelper --> PostDbSchema
+   PostCursorWrapper --> PostDbSchema
+   PostDbSchema *-- PostTable
+   PostTable *-- Cols
+@enduml
