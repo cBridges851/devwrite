@@ -56,7 +56,7 @@ public class PostFragment extends Fragment {
     private static final int REQUEST_CHOOSE_IMAGE_OPTION = 1;
     private static final int REQUEST_PHOTO_FROM_CAMERA = 2;
     private static final int REQUEST_PHOTO_FROM_GALLERY = 3;
-    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 4;
+    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 99;
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -203,8 +203,29 @@ public class PostFragment extends Fragment {
                 Log.println(Log.ERROR, "DisplayingGalleryImage", exception.getMessage());
             }
         }
-//        updatePhotoView();
+
         return view;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
+            Toast.makeText(getActivity(), "Reading gallery requested!", Toast.LENGTH_SHORT).show();
+
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("image/*");
+                startActivityForResult(
+                        Intent.createChooser(intent, "Select Photo"),
+                        REQUEST_PHOTO_FROM_GALLERY
+                );
+            } else {
+                Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+
+        }
     }
 
     @Override
@@ -216,7 +237,6 @@ public class PostFragment extends Fragment {
         if (requestCode == REQUEST_CHOOSE_IMAGE_OPTION) {
             assert data != null;
             String selectedItem = (String) data.getSerializableExtra(ChooseImageDialogFragment.EXTRA_OPTION);
-            Toast.makeText(getActivity(), selectedItem, Toast.LENGTH_SHORT).show();
 
             if (Objects.equals(selectedItem, getString(R.string.take_photo))) {
                 Uri uri = FileProvider.getUriForFile(
@@ -250,12 +270,6 @@ public class PostFragment extends Fragment {
                             PERMISSION_READ_EXTERNAL_STORAGE
                     );
                 }
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("image/*");
-                startActivityForResult(
-                        Intent.createChooser(intent, "Select Photo"),
-                        REQUEST_PHOTO_FROM_GALLERY
-                );
             }
         }
 
@@ -287,8 +301,6 @@ public class PostFragment extends Fragment {
                 String[] projection = { MediaStore.Images.Media.DATA };
                 String selection = MediaStore.Images.Media._ID + "=?";
                 String[] selectionArgs = { id };
-//                String debugging = "ID: " + id + "\nSelection Criteria: " + selection + ", " + selectionArgs[0];
-//                Toast.makeText(getActivity(), debugging, Toast.LENGTH_LONG).show();
 
                 Cursor cursor = getActivity().getContentResolver().query(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -297,6 +309,7 @@ public class PostFragment extends Fragment {
                         selectionArgs,
                         null
                 );
+
                 String queryUri = "query URI " + MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 Toast.makeText(getActivity(), queryUri, Toast.LENGTH_LONG).show();
                 cursor.moveToFirst();
