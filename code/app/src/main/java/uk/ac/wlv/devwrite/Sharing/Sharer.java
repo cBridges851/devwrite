@@ -14,7 +14,7 @@ public class Sharer {
         shareIntent.setPackage("com.linkedin.android");
         shareIntent.setType("*/*");
         shareIntent.putExtra(Intent.EXTRA_TEXT, content);
-        if (Objects.equals(fileUri.toString(), "")) {
+        if (!Objects.equals(fileUri.toString(), "")) {
             shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
         }
 
@@ -32,7 +32,7 @@ public class Sharer {
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, title);
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
-        if (Objects.equals(fileUri.toString(), "")) {
+        if (!Objects.equals(fileUri.toString(), "")) {
             emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
         }
         emailIntent.setSelector(selectorIntent);
