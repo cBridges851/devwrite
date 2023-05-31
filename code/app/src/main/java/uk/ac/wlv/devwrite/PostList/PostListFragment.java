@@ -375,6 +375,9 @@ public class PostListFragment extends Fragment {
 
             mSelectedPosts = new ArrayList<>();
             isMultiSelectEnabled = false;
+            mMenu.findItem(R.id.option_select_all).setVisible(true);
+            mMenu.findItem(R.id.option_delete).setVisible(false);
+            mMenu.findItem(R.id.option_deselect_all).setVisible(false);
             notifyDataSetChanged();
         }
     }
