@@ -57,6 +57,7 @@ public class PostFragment extends Fragment {
     private static final int REQUEST_PHOTO_FROM_CAMERA = 2;
     private static final int REQUEST_PHOTO_FROM_GALLERY = 3;
     private static final int PERMISSION_READ_EXTERNAL_STORAGE = 99;
+    private static final String IMAGE_INDEX = "image_index";
     private Post mPost;
     private TextInputEditText mTitleField;
     private TextInputEditText mContentField;
@@ -112,6 +113,10 @@ public class PostFragment extends Fragment {
         super.onCreate(savedInstanceState);
         UUID postId = (UUID) getArguments().getSerializable(ARG_POST_ID);
         mPost = DatabaseManager.get(getActivity()).getPost(postId);
+        if (savedInstanceState != null) {
+            Uri uri = Uri.parse((String) savedInstanceState.getSerializable(IMAGE_INDEX));
+            mPost.setUri(uri);
+        }
         mPhotoFile = DatabaseManager.get(getActivity()).getPhotoFile(mPost);
 
         setHasOptionsMenu(true);
@@ -234,6 +239,12 @@ public class PostFragment extends Fragment {
                     Intent.createChooser(intent, "Select Photo"),
                     REQUEST_PHOTO_FROM_GALLERY
             );
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(IMAGE_INDEX, mPost.getUri().toString());
     }
 
     @Override
