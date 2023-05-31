@@ -3,6 +3,7 @@ package uk.ac.wlv.devwrite.PostList;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -296,8 +297,14 @@ public class PostListFragment extends Fragment {
         public void deselectAll() {
             isMultiSelectEnabled = false;
 
-            for (int i = 0; i < mPosts.size(); i++) {
-                PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(mPostRecyclerView.getChildAt(i));
+            LinearLayoutManager layoutManager = (LinearLayoutManager) mPostRecyclerView.getLayoutManager();
+            int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+            int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
+            int difference = lastVisiblePosition - firstVisiblePosition;
+            for (int i = 0; i <= difference; i++) {
+                PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(
+                        mPostRecyclerView.getChildAt(i)
+                );
                 setPostAsDeselected(holder);
             }
         }

@@ -331,8 +331,6 @@ public class PostFragment extends Fragment {
                         null
                 );
 
-                String queryUri = "query URI " + MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                Toast.makeText(getActivity(), queryUri, Toast.LENGTH_LONG).show();
                 cursor.moveToFirst();
                 int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 String filePath = cursor.getString(columnIndex);
