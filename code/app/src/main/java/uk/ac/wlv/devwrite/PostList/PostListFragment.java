@@ -217,6 +217,19 @@ public class PostListFragment extends Fragment {
         public void onBindViewHolder(@NonNull PostHolder holder, int position) {
             Post post = mPosts.get(position);
             holder.bindPost(post);
+
+            boolean postHasPreviouslyBeenSelected = false;
+            for (Post selectedPost: mSelectedPosts) {
+                if (Objects.equals(post.getId(), selectedPost.getId())) {
+                    postHasPreviouslyBeenSelected = true;
+                    setPostAsSelected(holder);
+                }
+            }
+
+            if (!postHasPreviouslyBeenSelected) {
+                setPostAsDeselected(holder);
+            }
+
             holder.itemView.setOnLongClickListener(listener -> {
                 if (!isMultiSelectEnabled) {
                     isMultiSelectEnabled = true;
@@ -309,7 +322,15 @@ public class PostListFragment extends Fragment {
             holder.itemView.setBackgroundColor(color);
             holder.mCheckBox.setVisibility(View.VISIBLE);
 
-            if (!mSelectedPosts.contains(holder.mPost)) {
+            boolean alreadySelected = false;
+
+            for (Post selectedPost : mSelectedPosts) {
+                if (Objects.equals(selectedPost.getId(), holder.mPost.getId())) {
+                    alreadySelected = true;
+                }
+            }
+
+            if (!alreadySelected) {
                 mSelectedPosts.add(holder.mPost);
             }
         }
@@ -327,7 +348,9 @@ public class PostListFragment extends Fragment {
                 }
             }
 
-            mSelectedPosts.remove(postToRemove);
+            if (postToRemove != null) {
+                mSelectedPosts.remove(postToRemove);
+            }
         }
 
         @Override
@@ -351,6 +374,7 @@ public class PostListFragment extends Fragment {
             }
 
             mSelectedPosts = new ArrayList<>();
+            isMultiSelectEnabled = false;
             notifyDataSetChanged();
         }
     }
