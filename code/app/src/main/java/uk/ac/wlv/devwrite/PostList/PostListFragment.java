@@ -240,10 +240,17 @@ public class PostListFragment extends Fragment {
             }
 
             if (isMultiSelectEnabled) {
-                if (!mSelectedPosts.contains(post)) {
-                    setPostAsSelected(holder);
-                } else {
+                boolean postIsCurrentlySelected = false;
+                for (Post selectedPost: mSelectedPosts) {
+                    if (Objects.equals(selectedPost.getId(), post.getId())) {
+                        postIsCurrentlySelected = true;
+                    }
+                }
+
+                if (postIsCurrentlySelected) {
                     setPostAsDeselected(holder);
+                } else {
+                    setPostAsSelected(holder);
                 }
             }
 
@@ -262,10 +269,6 @@ public class PostListFragment extends Fragment {
                 selectAllMenuItem.setVisible(true);
                 deselectAllMenuItem.setVisible(false);
             }
-        }
-
-        public void uncheckBox(PostHolder holder) {
-            setPostAsDeselected(holder);
         }
 
         public void selectAll() {
@@ -288,8 +291,10 @@ public class PostListFragment extends Fragment {
 
         private boolean areAnyPostsSelected() {
             for (Post post : mPosts) {
-                if (mSelectedPosts.contains(post)) {
-                    return true;
+                for (Post selectedPost: mSelectedPosts) {
+                    if (Objects.equals(post.getId(), selectedPost.getId())) {
+                        return true;
+                    }
                 }
             }
 
@@ -312,7 +317,17 @@ public class PostListFragment extends Fragment {
         private void setPostAsDeselected(PostHolder holder) {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
             holder.mCheckBox.setVisibility(View.GONE);
-            mSelectedPosts.remove(holder.mPost);
+
+            Post postToRemove = null;
+
+            for (Post post: mSelectedPosts) {
+                if (Objects.equals(post.getId(), holder.mPost.getId())) {
+                    postToRemove = post;
+                    break;
+                }
+            }
+
+            mSelectedPosts.remove(postToRemove);
         }
 
         @Override
@@ -321,9 +336,18 @@ public class PostListFragment extends Fragment {
         }
 
         public void deleteSelected() {
-            for (Post post : mSelectedPosts) {
-                DatabaseManager.get(getActivity()).deletePost(post);
-                mPosts.remove(post);
+            for (Post selectedPost : mSelectedPosts) {
+                DatabaseManager.get(getActivity()).deletePost(selectedPost);
+
+                Post postToDelete = new Post();
+
+                for (Post post : mPosts) {
+                    if (Objects.equals(post.getId(), selectedPost.getId())) {
+                        postToDelete = post;
+                    }
+                }
+
+                mPosts.remove(postToDelete);
             }
 
             mSelectedPosts = new ArrayList<>();
