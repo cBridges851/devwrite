@@ -212,20 +212,22 @@ public class PostFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
-            Toast.makeText(getActivity(), "Reading gallery requested!", Toast.LENGTH_SHORT).show();
-
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("image/*");
-                startActivityForResult(
-                        Intent.createChooser(intent, "Select Photo"),
-                        REQUEST_PHOTO_FROM_GALLERY
-                );
+                openGallery();
             } else {
                 Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
             }
 
         }
+    }
+
+    private void openGallery() {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.setType("image/*");
+            startActivityForResult(
+                    Intent.createChooser(intent, "Select Photo"),
+                    REQUEST_PHOTO_FROM_GALLERY
+            );
     }
 
     @Override
@@ -269,6 +271,8 @@ public class PostFragment extends Fragment {
                             new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
                             PERMISSION_READ_EXTERNAL_STORAGE
                     );
+                } else {
+                    openGallery();
                 }
             }
         }
