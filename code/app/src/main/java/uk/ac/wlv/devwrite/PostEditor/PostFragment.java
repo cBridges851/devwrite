@@ -174,24 +174,30 @@ public class PostFragment extends Fragment {
         if (!Objects.equals(uri.toString(), "")) {
             try {
                 mPost.setUri(uri);
-                String documentId = DocumentsContract.getDocumentId(uri);
-                String[] parts = documentId.split(":");
-                String id = parts[1];
+                String filePath;
+                if (uri.toString().contains("com.android.providers.media.documents")) {
+                    String documentId = DocumentsContract.getDocumentId(uri);
+                    String[] parts = documentId.split(":");
+                    String id = parts[1];
 
-                String[] projection = { MediaStore.Images.Media.DATA };
-                String selection = MediaStore.Images.Media._ID + "=?";
-                String[] selectionArgs = { id };
-                Cursor cursor = getActivity().getContentResolver().query(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null
-                );
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                String filePath = cursor.getString(columnIndex);
-                cursor.close();
+                    String[] projection = { MediaStore.Images.Media.DATA };
+                    String selection = MediaStore.Images.Media._ID + "=?";
+                    String[] selectionArgs = { id };
+                    Cursor cursor = getActivity().getContentResolver().query(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null
+                    );
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    filePath = cursor.getString(columnIndex);
+                    cursor.close();
+
+                } else {
+                    filePath = mPhotoFile.getPath();
+                }
 
                 Bitmap scaledBitmap = PictureUtils.getScaledBitmap(
                         filePath,
