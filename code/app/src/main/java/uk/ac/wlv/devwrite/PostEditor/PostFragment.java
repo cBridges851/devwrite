@@ -50,6 +50,9 @@ import uk.ac.wlv.devwrite.Models.Post;
 import uk.ac.wlv.devwrite.R;
 import uk.ac.wlv.devwrite.Sharing.Sharer;
 
+/**
+ * The fragment that is displayed inside the PostActivity when the user edits the post
+ */
 public class PostFragment extends Fragment {
     private static final String ARG_POST_ID = "post_id";
     private static final String DIALOG_CHOOSE_IMAGE = "DialogChooseImage";
@@ -68,6 +71,7 @@ public class PostFragment extends Fragment {
 
     public static PostFragment newInstance(UUID postId) {
         Bundle args = new Bundle();
+        // the post that is being edited
         args.putSerializable(ARG_POST_ID, postId);
         PostFragment fragment = new PostFragment();
         fragment.setArguments(args);
@@ -82,6 +86,7 @@ public class PostFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // The post is only updated when the save button is pressed
         if (item.getItemId() == R.id.menu_item_save) {
             DatabaseManager.get(getActivity()).updatePost(mPost);
             Toast.makeText(getActivity(), mPost.getTitle() + " Saved", Toast.LENGTH_SHORT).show();
@@ -102,6 +107,7 @@ public class PostFragment extends Fragment {
 
         if (item.getItemId() == R.id.option_delete) {
             DatabaseManager.get(getActivity()).deletePost(mPost);
+            // Takes the user back to the post list activity
             requireActivity().finish();
         }
 
@@ -112,13 +118,20 @@ public class PostFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         UUID postId = (UUID) getArguments().getSerializable(ARG_POST_ID);
+        // Gets the post to be edited from the database
         mPost = DatabaseManager.get(getActivity()).getPost(postId);
+
+        // When there is an unsaved image and the user rotates the phone, the image can be lost.
+        // This helps persist the image while the user is using the fragment
         if (savedInstanceState != null) {
             Uri uri = Uri.parse((String) savedInstanceState.getSerializable(IMAGE_INDEX));
             mPost.setUri(uri);
         }
+
+        // Gets the camera image for the post if there is one
         mPhotoFile = DatabaseManager.get(getActivity()).getPhotoFile(mPost);
 
+        // Indicates that there needs to be a menu on the fragment
         setHasOptionsMenu(true);
     }
 
@@ -127,6 +140,7 @@ public class PostFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
+        // Retrieving all the widgets that are on the fragment and initialising them in the class
         mTitleField = view.findViewById(R.id.title_field_input);
         mTitleField.setText(mPost.getTitle());
         mTitleField.addTextChangedListener(new TextWatcher() {
@@ -170,6 +184,7 @@ public class PostFragment extends Fragment {
         mChooseImageButton = view.findViewById(R.id.choose_image_button);
 
         mChooseImageButton.setOnClickListener(event -> {
+            // Triggers a dialog so the user can choose whether to take a photo or select from the gallery
             DialogFragment chooseImageFragment = ChooseImageDialogFragment.newInstance();
             chooseImageFragment.setTargetFragment(PostFragment.this, REQUEST_CHOOSE_IMAGE_OPTION);
             chooseImageFragment.show(getFragmentManager(), DIALOG_CHOOSE_IMAGE);
@@ -180,6 +195,7 @@ public class PostFragment extends Fragment {
             try {
                 mPost.setUri(uri);
                 String filePath;
+                // If the picture is from the gallery
                 if (uri.toString().contains("com.android.providers.media.documents")) {
                     String documentId = DocumentsContract.getDocumentId(uri);
                     String[] parts = documentId.split(":");
@@ -201,6 +217,7 @@ public class PostFragment extends Fragment {
                     cursor.close();
 
                 } else {
+                    // If the picture is from the camera
                     filePath = mPhotoFile.getPath();
                 }
 
@@ -222,6 +239,7 @@ public class PostFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        // Only opens the gallery if the user has granted permission
         if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openGallery();
@@ -232,6 +250,9 @@ public class PostFragment extends Fragment {
         }
     }
 
+    /**
+     * Opens the gallery so the user is able to select an image
+     */
     private void openGallery() {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("image/*");
@@ -244,6 +265,8 @@ public class PostFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        // Temporarily stores the post's image uri so it can be retrieved again after the
+        // phone rotates, for example
         outState.putString(IMAGE_INDEX, mPost.getUri().toString());
     }
 
@@ -257,7 +280,9 @@ public class PostFragment extends Fragment {
             assert data != null;
             String selectedItem = (String) data.getSerializableExtra(ChooseImageDialogFragment.EXTRA_OPTION);
 
+            // If the user chose to take a photo in the dialog
             if (Objects.equals(selectedItem, getString(R.string.take_photo))) {
+                // Gets uri of the image the user has taken
                 Uri uri = FileProvider.getUriForFile(
                         getActivity(),
                         "uk.ac.wlv.devwrite.fileprovider",
@@ -281,19 +306,23 @@ public class PostFragment extends Fragment {
                 startActivityForResult(captureImage, REQUEST_PHOTO_FROM_CAMERA);
             }
 
+            // If the user chose to select an image from the gallery in the dialog
             if (Objects.equals(selectedItem, getString(R.string.select_from_gallery))) {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    // The app does not have permission to read from external storage (i.e. the gallery) yet
                     ActivityCompat.requestPermissions(
                             requireActivity(),
                             new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
                             PERMISSION_READ_EXTERNAL_STORAGE
                     );
                 } else {
+                    // Permission has already been granted, so can open the gallery.
                     openGallery();
                 }
             }
         }
 
+        // This if statement can be hit after the dialog result comes back and the user has taken a photo
         if (requestCode == REQUEST_PHOTO_FROM_CAMERA) {
             Uri uri = FileProvider.getUriForFile(
                     requireActivity(),
@@ -306,6 +335,7 @@ public class PostFragment extends Fragment {
             updatePhotoView();
         }
 
+        // This if statement can be hit after the dialog result comes back and the user has selected an image from the gallery
         if (requestCode == REQUEST_PHOTO_FROM_GALLERY) {
             if (data == null) {
                 return;
@@ -313,8 +343,11 @@ public class PostFragment extends Fragment {
 
             try {
                 Uri uri = data.getData();
+                // Ensures that the image can be read again when the post editor is reloaded
                 getActivity().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mPost.setUri(uri);
+                // Images from the gallery have a Document URI since they are kept in the MediaStore
+                // The id is needed for it so it can be retrieved, leading to being able to get the file path
                 String documentId = DocumentsContract.getDocumentId(uri);
                 String[] parts = documentId.split(":");
                 String id = parts[1];
@@ -359,6 +392,12 @@ public class PostFragment extends Fragment {
         }
     }
 
+    /**
+     * Retrieves the compress format that is needed for an image based on its mime type
+     * (the type of file the image is)
+     * @param uri the uri to an image
+     * @return the compress format
+     */
     private Bitmap.CompressFormat getCompressFormat(Uri uri) {
         String mimeType;
 
@@ -383,6 +422,9 @@ public class PostFragment extends Fragment {
         return null;
     }
 
+    /**
+     * Displays the image in the placeholder
+     */
     private void updatePhotoView() {
         if (mPhotoFile == null || !mPhotoFile.exists()) {
             mPhotoView.setImageDrawable(null);

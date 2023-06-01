@@ -12,11 +12,19 @@ import java.util.UUID;
 
 import uk.ac.wlv.devwrite.Models.Post;
 
+/**
+ * Class that creates, reads, updates and deletes posts in the database.
+ */
 public class DatabaseManager {
     private static DatabaseManager sDatabaseManager;
     private Context mContext;
     private SQLiteDatabase mDatabase;
 
+    /**
+     * Returns an instance of this class, there will only be one in the program (singleton pattern)
+     * @param context Contains global information about app
+     * @return Instance of DatabaseManager
+     */
     public static DatabaseManager get(Context context) {
         if (sDatabaseManager == null) {
             sDatabaseManager = new DatabaseManager(context);
@@ -39,6 +47,9 @@ public class DatabaseManager {
         return values;
     }
 
+    /**
+     * @return posts All the posts that are stored in the database
+     */
     public List<Post> getPosts() {
         List<Post> posts = new ArrayList<>();
         PostCursorWrapper cursor = queryPosts(null, null);
@@ -57,6 +68,12 @@ public class DatabaseManager {
         return posts;
     }
 
+    /**
+     * Finds specific posts based on a query
+     * @param whereClause the property that should be queried against
+     * @param whereArgs the value that should be looked for
+     * @return the results of the query
+     */
     private PostCursorWrapper queryPosts(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(
                 PostDbSchema.PostTable.NAME,
@@ -83,6 +100,7 @@ public class DatabaseManager {
         );
 
         try {
+            // The post does not exist
             if (cursor.getCount() == 0) {
                 return null;
             }
@@ -113,6 +131,11 @@ public class DatabaseManager {
         );
     }
 
+    /**
+     * Retrieves a camera photo for the post from the files directory
+     * @param post the post the image is for
+     * @return the image
+     */
     public File getPhotoFile(Post post) {
         File filesDirectory = mContext.getFilesDir();
         return new File(filesDirectory, post.getPhotoFileName());

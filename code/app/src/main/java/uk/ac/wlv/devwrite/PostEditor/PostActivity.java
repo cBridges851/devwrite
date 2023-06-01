@@ -13,6 +13,9 @@ import java.util.UUID;
 
 import uk.ac.wlv.devwrite.R;
 
+/**
+ * The screen that is displayed when the user edits a post
+ */
 public class PostActivity extends AppCompatActivity {
     private static final String EXTRA_POST_ID = "uk.ac.wlv.devwrite.post_id";
 
@@ -37,6 +40,7 @@ public class PostActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
+        // The post that will be edited
         UUID postId = (UUID) getIntent().getSerializableExtra(EXTRA_POST_ID);
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.fragment_container);

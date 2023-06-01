@@ -4,12 +4,14 @@ import android.net.Uri;
 
 import java.util.UUID;
 
+/**
+ * Model that represents a post
+ */
 public class Post {
     private UUID mId;
     private String mTitle;
     private String mContent;
     private Uri mUri = Uri.EMPTY;
-    private boolean mIsSelected = false;
 
     public Post() {
         this(UUID.randomUUID());
@@ -55,11 +57,4 @@ public class Post {
         mUri = uri;
     }
 
-    public boolean isSelected() {
-        return mIsSelected;
-    }
-
-    public void setSelected(boolean selected) {
-        mIsSelected = selected;
-    }
 }

@@ -8,6 +8,9 @@ import java.util.UUID;
 
 import uk.ac.wlv.devwrite.Models.Post;
 
+/**
+ * Class that queries the database
+ */
 public class PostCursorWrapper extends CursorWrapper {
     public PostCursorWrapper(Cursor cursor) {
         super(cursor);

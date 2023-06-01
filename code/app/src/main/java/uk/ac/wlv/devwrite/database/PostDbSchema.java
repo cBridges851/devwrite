@@ -1,7 +1,8 @@
 package uk.ac.wlv.devwrite.database;
 
-import android.net.Uri;
-
+/**
+ * Model class that represents the structure of the database table for the app.
+ */
 public class PostDbSchema {
     public static class PostTable {
         public static final String NAME = "posts";

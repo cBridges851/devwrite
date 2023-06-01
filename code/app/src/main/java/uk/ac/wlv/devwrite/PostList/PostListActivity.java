@@ -9,6 +9,9 @@ import androidx.fragment.app.FragmentManager;
 
 import uk.ac.wlv.devwrite.R;
 
+/**
+ * The activity that is displayed when the app is opened.
+ */
 public class PostListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

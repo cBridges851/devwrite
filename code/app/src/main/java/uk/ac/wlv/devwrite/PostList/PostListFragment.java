@@ -33,6 +33,11 @@ import uk.ac.wlv.devwrite.PostEditor.PostActivity;
 import uk.ac.wlv.devwrite.R;
 import uk.ac.wlv.devwrite.Search.SearchHelper;
 
+/**
+ * The fragment that is inside the activity that is displayed when the app is opened.
+ * It allows the user to see a list of posts in the RecyclerView, press a button to create a post,
+ * search posts, and manage multiple posts.
+ */
 public class PostListFragment extends Fragment {
     private RecyclerView mPostRecyclerView;
     private PostAdapter mPostAdapter;
@@ -46,6 +51,7 @@ public class PostListFragment extends Fragment {
         inflater.inflate(R.menu.fragment_post_list, menu);
 
         mMenu = menu;
+        // When no items are selected in the multiselect, only "Select all should be visible"
         mMenu.findItem(R.id.option_select_all).setVisible(true);
         mMenu.findItem(R.id.option_deselect_all).setVisible(false);
         mMenu.findItem(R.id.option_delete).setVisible(false);
@@ -55,6 +61,7 @@ public class PostListFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_item_search) {
             mPostAdapter.deselectAll();
+            // The kebab menu disappears
             mMenu.findItem(R.id.option_select_all).setVisible(false);
             mMenu.findItem(R.id.option_deselect_all).setVisible(false);
             mMenu.findItem(R.id.option_delete).setVisible(false);
@@ -85,6 +92,9 @@ public class PostListFragment extends Fragment {
 
         if (item.getItemId() == R.id.option_select_all) {
             mPostAdapter.selectAll();
+            // When multiselect is enabled (which is what happens when the user presses select all),
+            // only "Select All" shouldn't be visible anymore, and "Deselect All" and "Delete" should
+            // be instead
             item.setVisible(false);
             mMenu.findItem(R.id.option_deselect_all).setVisible(true);
             mMenu.findItem(R.id.option_delete).setVisible(true);
@@ -93,12 +103,15 @@ public class PostListFragment extends Fragment {
         if (item.getItemId() == R.id.option_deselect_all) {
             mPostAdapter.deselectAll();
             MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
+            // When "Deselect All" is pressed, multiselect should be disabled, meaning "Select All"
+            // should become visible, and "Deselect All" and "Delete shouldn't"
             selectAllMenuItem.setVisible(true);
             mMenu.findItem(R.id.option_deselect_all).setVisible(false);
             mMenu.findItem(R.id.option_delete).setVisible(false);
         }
         
         if (item.getItemId() == R.id.option_delete) {
+            // Deletes all the items that are selected
             mPostAdapter.deleteSelected();
         }
 
@@ -117,16 +130,20 @@ public class PostListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post_list, container, false);
 
+        // Retrieving all the widgets that are on the fragment and initialising them
         mCreatePostButton = view.findViewById(R.id.create_post_button);
         mCreatePostButton.setOnClickListener(buttonView -> {
             Post post = new Post();
+            // Setting default items
             post.setTitle("");
             post.setContent("");
+            // Creates a new post so it can be "edited" in the post editor screen
             DatabaseManager.get(getActivity()).addPost(post);
             Intent intent = PostActivity.newIntent(getActivity(), post.getId());
             startActivity(intent);
         });
 
+        // Displays all the posts
         mPostRecyclerView = view.findViewById(R.id.post_recycler_view);
         mPostRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         posts = DatabaseManager.get(getActivity()).getPosts();
@@ -137,10 +154,16 @@ public class PostListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Displays the latest posts when the activity and fragment are resumed, such as after they
+        // have rotated the phone or come back to the app after being on a different one
         posts = DatabaseManager.get(getActivity()).getPosts();
         updateUI(posts);
     }
 
+    /**
+     * Displays all the latest posts in the recycler view
+     * @param posts the posts that should be displayed
+     */
     private void updateUI(List<Post> posts) {
         if (mPostAdapter == null) {
             mPostAdapter = new PostAdapter(posts);
@@ -151,6 +174,9 @@ public class PostListFragment extends Fragment {
         }
     }
 
+    /**
+     * Class that represents a post in the recycler view
+     */
     private class PostHolder extends RecyclerView.ViewHolder {
         public MaterialTextView mTitleTextView;
         public MaterialTextView mContentTextView;
@@ -164,10 +190,15 @@ public class PostListFragment extends Fragment {
             mCheckBox = itemView.findViewById(R.id.list_item_selected_checkbox);
         }
 
+        /**
+         * Attaches a post to a recycler view holder
+         * @param post the post to bind
+         */
         public void bindPost(Post post) {
             mPost = post;
             String title = mPost.getTitle();
 
+            // Shortens the title and content to ensure that the holders do not become too tall
             if (title != null && title.length() > 30) {
                 title = title.substring(0, 30);
                 title = title + "...";
@@ -181,9 +212,12 @@ public class PostListFragment extends Fragment {
             }
 
             mContentTextView.setText(content);
+            // Checkbox used to indicate the item has been selected
             mCheckBox.setChecked(true);
             mCheckBox.setVisibility(View.GONE);
 
+            // Checkbox remains checked for aesthetic - it is either there and checked or not there at all
+            // Enables the user to deselect a post
             mCheckBox.setOnCheckedChangeListener((listener, value) -> {
                 mCheckBox.setChecked(true);
                 mPostAdapter.handlePostClick(this);
@@ -191,8 +225,17 @@ public class PostListFragment extends Fragment {
         }
     }
 
+    /**
+     * Manages the holders that display the posts
+     */
     private class PostAdapter extends RecyclerView.Adapter<PostHolder> {
+        /**
+         * List of all the posts that are displayed
+         */
         private List<Post> mPosts;
+        /**
+         * List of all the posts that have been selected in the multiselect
+         */
         private List<Post> mSelectedPosts;
         private boolean isMultiSelectEnabled;
 
@@ -210,6 +253,7 @@ public class PostListFragment extends Fragment {
         @Override
         public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+            // Enables a post to be displayed in the recycler view
             View view = layoutInflater.inflate(R.layout.list_item_post, parent, false);
             return new PostHolder(view);
         }
@@ -219,7 +263,11 @@ public class PostListFragment extends Fragment {
             Post post = mPosts.get(position);
             holder.bindPost(post);
 
+            // The mSelectedPosts array may not be empty, e.g. after the user has returned to DevWrite
+            // after being on another app.
+            // This ensures the multiselect persists
             boolean postHasPreviouslyBeenSelected = false;
+
             for (Post selectedPost: mSelectedPosts) {
                 if (Objects.equals(post.getId(), selectedPost.getId())) {
                     postHasPreviouslyBeenSelected = true;
@@ -227,13 +275,17 @@ public class PostListFragment extends Fragment {
                 }
             }
 
+            // Ensures any posts that were not selected before remain unselected
             if (!postHasPreviouslyBeenSelected) {
                 setPostAsDeselected(holder);
             }
 
+            // The first item that has been long clicked triggers the multiselect to be enabled
             holder.itemView.setOnLongClickListener(listener -> {
                 if (!isMultiSelectEnabled) {
                     isMultiSelectEnabled = true;
+                    // "Select All" and "Delete" should be visible in the menu because not all items have been selected,
+                    // but multiselect is enabled, so multiple posts should be able to be selected
                     mMenu.findItem(R.id.option_delete).setVisible(true);
                     setPostAsSelected(holder);
                 }
@@ -246,13 +298,22 @@ public class PostListFragment extends Fragment {
             });
         }
 
+        /**
+         * Decides whether the post editor for a post should be entered or if another item should
+         * be selected
+         * @param holder the holder of the post that has been clicked
+         */
         public void handlePostClick(PostHolder holder) {
             Post post = holder.mPost;
+
+            // If multiselect is not enabled, it should go into the post's post editor
             if (!isMultiSelectEnabled) {
                 Intent intent = PostActivity.newIntent(getActivity(), post.getId());
                 startActivity(intent);
             }
 
+            // If multiselect is enabled, then it should select it or deselect it based on whether
+            // it is selected
             if (isMultiSelectEnabled) {
                 boolean postIsCurrentlySelected = false;
                 for (Post selectedPost: mSelectedPosts) {
@@ -268,6 +329,8 @@ public class PostListFragment extends Fragment {
                 }
             }
 
+            // Disables multiselect if multiselect is not enabled, so posts can be entered
+            // into again on click
             if (!areAnyPostsSelected()) {
                 isMultiSelectEnabled = false;
                 mMenu.findItem(R.id.option_delete).setVisible(false);
@@ -276,15 +339,21 @@ public class PostListFragment extends Fragment {
             MenuItem selectAllMenuItem = mMenu.findItem(R.id.option_select_all);
             MenuItem deselectAllMenuItem = mMenu.findItem(R.id.option_deselect_all);
 
+            // If all posts are selected, then "Deselect All" should be visible
             if (Objects.equals(mPosts.size(), mSelectedPosts.size())) {
                 selectAllMenuItem.setVisible(false);
                 deselectAllMenuItem.setVisible(true);
             } else {
+                // Otherwise, "Select All" should be visible so the user can select the remaining
+                // posts
                 selectAllMenuItem.setVisible(true);
                 deselectAllMenuItem.setVisible(false);
             }
         }
 
+        /**
+         * Enables all the posts to be selected, enabling multiselect
+         */
         public void selectAll() {
             isMultiSelectEnabled = true;
 
@@ -294,12 +363,16 @@ public class PostListFragment extends Fragment {
             }
         }
 
+        /**
+         * Enables all posts to be deselected, disabling multiselect
+         */
         public void deselectAll() {
             isMultiSelectEnabled = false;
 
             LinearLayoutManager layoutManager = (LinearLayoutManager) mPostRecyclerView.getLayoutManager();
             int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
             int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
+            // Ensures that the items that are visible are selected
             int difference = lastVisiblePosition - firstVisiblePosition;
             for (int i = 0; i <= difference; i++) {
                 PostHolder holder = (PostHolder) mPostRecyclerView.getChildViewHolder(
@@ -309,6 +382,10 @@ public class PostListFragment extends Fragment {
             }
         }
 
+        /**
+         * Iterates through every post to see if any are selected
+         * @return true or false depending on if any posts are selected
+         */
         private boolean areAnyPostsSelected() {
             for (Post post : mPosts) {
                 for (Post selectedPost: mSelectedPosts) {
@@ -321,7 +398,12 @@ public class PostListFragment extends Fragment {
             return false;
         }
 
+        /**
+         * Sets an individual post as selected, so highlights it and adds a checkbox
+         * @param holder The holder of the post that should be marked as selected
+         */
         private void setPostAsSelected(PostHolder holder) {
+            // the highlight colour
             int color = MaterialColors.getColor(
                     requireView(),
                     com.google.android.material.R.attr.colorSurfaceVariant
@@ -334,14 +416,23 @@ public class PostListFragment extends Fragment {
             for (Post selectedPost : mSelectedPosts) {
                 if (Objects.equals(selectedPost.getId(), holder.mPost.getId())) {
                     alreadySelected = true;
+                    break;
                 }
             }
 
+            // Only adds to the list of posts if the post is not already in the list, handles
+            // scenario where post may have been selected before the user rotated the phone,
+            // for example
             if (!alreadySelected) {
                 mSelectedPosts.add(holder.mPost);
             }
         }
 
+        /**
+         * Sets an individual post as deselected, so changes the background back to normal
+         * and removes the checkbox
+         * @param holder The holder of the post that should be marked as deselected
+         */
         private void setPostAsDeselected(PostHolder holder) {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
             holder.mCheckBox.setVisibility(View.GONE);
@@ -365,6 +456,9 @@ public class PostListFragment extends Fragment {
             return mPosts.size();
         }
 
+        /**
+         * Empties the list of selected posts and removes them from the recycler view.
+         */
         public void deleteSelected() {
             for (Post selectedPost : mSelectedPosts) {
                 DatabaseManager.get(getActivity()).deletePost(selectedPost);

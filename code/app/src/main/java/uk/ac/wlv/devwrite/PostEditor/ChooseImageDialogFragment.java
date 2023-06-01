@@ -13,6 +13,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.ac.wlv.devwrite.R;
 
+/**
+ * Dialog that opens when the user presses the "Choose Image" button.
+ */
 public class ChooseImageDialogFragment extends DialogFragment {
     public final static String EXTRA_OPTION = "uk.ac.wlv.devwrite.option";
 
@@ -34,6 +37,11 @@ public class ChooseImageDialogFragment extends DialogFragment {
         return builder.create();
     }
 
+    /**
+     * Sends what the user selected on in the dialog back to the fragment that triggered the dialog.
+     * @param resultCode Number indicating the result of the onCreateDialog
+     * @param item The item that was selected in the dialog
+     */
     private void sendResult(int resultCode, String item) {
         if (getTargetFragment() == null) return;
 
