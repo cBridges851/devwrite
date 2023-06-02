@@ -41,9 +41,26 @@
         class Sharer
     }
 
+    class Post {
+        - mId: UUID
+        - mTitle: String
+        - mContent: String
+        - mUri: Uri
+        + <<UUID>> getId()
+        + <<void>> setId(UUID id)
+        + <<String>> getTitle()
+        + <<void>> setTitle(String title)
+        + <<String>> getContent()
+        + <<void>> setContent(String content)
+        + <<String>> getPhotoFileName()
+        + <<Uri>> getUri()
+        + <<void>> setUri(Uri uri)
+    }
+
     PostListActivity --> PostListFragment
     PostListFragment --> SearchHandler
     PostListFragment *-- PostHolder : "contains"
     PostListFragment *-- PostAdapter : "contains"
+    PostHolder o-- Post
     PostListFragment --> Sharer
 @enduml
