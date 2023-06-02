@@ -1,7 +1,7 @@
 @startuml
 ' Editor Component
 
-    class PostPagerActivity {
+    class PostActivity {
         - EXTRA_CRIME_ID: String
         - mViewPager: ViewPager
         - mPosts: List<Post>
@@ -26,6 +26,22 @@
         - <<void>> updatePhotoView()
     }
 
+    class Post {
+        - mId: UUID
+        - mTitle: String
+        - mContent: String
+        - mUri: Uri
+        + <<UUID>> getId()
+        + <<void>> setId(UUID id)
+        + <<String>> getTitle()
+        + <<void>> setTitle(String title)
+        + <<String>> getContent()
+        + <<void>> setContent(String content)
+        + <<String>> getPhotoFileName()
+        + <<Uri>> getUri()
+        + <<void>> setUri(Uri uri)
+    }
+
     class PictureUtils {
         + <<Bitmap>> getScaledBitmap(String path, Activity activity)
         - <<Bitmap>> getScaledBitmap(String path, int destWidth, int destHeight)
@@ -35,7 +51,8 @@
         class Sharer
     }
     
-    PostPagerActivity --> PostFragment
+    PostActivity --> PostFragment
+    PostFragment o-- Post
     PostFragment --> PictureUtils
     PostFragment --> Sharer
 @enduml
